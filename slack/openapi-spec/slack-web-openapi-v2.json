@@ -19446,10 +19446,10 @@
                         "description": "Successful token request with scopes for both a bot user and a user token",
                         "examples": {
                             "application/json": {
-                                "access_token": "******",
+                                "access_token": "test",
                                 "app_id": "A0KRD7HC3",
                                 "authed_user": {
-                                    "access_token": "*****",
+                                    "access_token": "test-1234",
                                     "id": "U1234",
                                     "scope": "chat:write",
                                     "token_type": "user"
