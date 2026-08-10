@@ -2,7 +2,7 @@
 
 MCPBus config example: `./mcpbus.conf`
 
-This config creates MCP-connector that provides access to Cloudflare APIs.
+This config creates MCP-connector that provides access to Okta Management APIs.
 
 This API translates into names space in TS/JS SDK: `oktaManagement`.
 
