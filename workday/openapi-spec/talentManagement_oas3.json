@@ -1,0 +1,3196 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "talentManagement",
+    "description": "The Talent Management public service contains resources that expose Workday Talent Management Business Services data. This service can be used for integration with other talent management  systems.",
+    "version": "v2",
+    "x-workday-internal-source": "xo",
+    "x-workday-internal-routing": "Public",
+    "x-workday-internal-protected-usage-enabled": false,
+    "x-workday-internal-service-container-id": "d9326a9f560e10000ad2e111b3941258"
+  },
+  "servers": [
+    {
+      "url": "https://<tenantHostname>/talentManagement/v2"
+    }
+  ],
+  "tags": [
+    {
+      "name": "createMentorshipForMe",
+      "description": "Create Mentorship For Me interface"
+    },
+    {
+      "name": "createMentorshipForWorker",
+      "description": "Create Mentorship For Worker interface"
+    },
+    {
+      "name": "mentorships",
+      "description": "The Mentorship interface"
+    },
+    {
+      "name": "successionPlanEvents",
+      "description": "Retrieves all the information for succession plan events. You must specify a succession plan ID to retrieve all related succession plan events. If a succession plan ID is not specified, returns a blank response.",
+      "x-workday-confidence-level": "Production"
+    },
+    {
+      "name": "successionPlans",
+      "description": "Provides the ability to get and create succession plan for a position\n- GET endpoint retrieves all the information for a succession plan. You must specify a position ID. If a position ID is not specified, returns a blank response.\n\n- POST endpoint creates a single succession plan instance with the specified data. In the request body, specify the required field: position.ID.",
+      "x-workday-confidence-level": "Production"
+    },
+    {
+      "name": "Prompt Values",
+      "description": "Retrieves instances that can be used as values for other endpoint parameters in this service."
+    }
+  ],
+  "paths": {
+    "/successionPlans": {
+      "get": {
+        "tags": [
+          "successionPlans"
+        ],
+        "summary": "Get succession plans.",
+        "description": "Returns succession plans viewable by authenticated user.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "position",
+            "in": "query",
+            "description": "Postion Id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/successionPlanDetails_7e3bb9fc9368100020f4312542580000"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "7e3bb9fc9368100020e63f4bc4f60000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      },
+      "post": {
+        "tags": [
+          "successionPlans"
+        ],
+        "description": "\n\n<b>Secured By Domain:</b> Search: Find Succession Plans, Set Up: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/successionPlanDetails_7e3bb9fc9368100020f4312542580000"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanDetails_7e3bb9fc9368100020f4312542580000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A161 | Specify a valid Position ID. The position you specified has an active succession plan. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "6e24a91f47cf10001cb5fd1f934d0000",
+        "x-workday-secured-by-domains": [
+          "Search: Find Succession Plans",
+          "Set Up: Succession"
+        ]
+      }
+    },
+    "/successionPlans/{ID}": {
+      "get": {
+        "tags": [
+          "successionPlans"
+        ],
+        "summary": "Get succession plans",
+        "description": "Returns succession plan for the given succession plan ID viewable by authenticated user.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanDetails_7e3bb9fc9368100020f4312542580000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "7e3bb9fc9368100020e63f4bc4f60000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      }
+    },
+    "/mentorships": {
+      "get": {
+        "tags": [
+          "mentorships"
+        ],
+        "summary": "Get all mentorships",
+        "description": "Returns mentorships viewable by authenticated user.\n\n<b>Secured By Domain:</b> Self-Service: Mentoring, Worker Data: Mentoring\n\n<b>Scope:</b> Career and Development Planning, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "closeMentorshipReason",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "closed",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "inProgress",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "mentee",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "mentor",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "mentorType",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/mentorshipDetail_ff0d12e68ab310001383c6eeeee0001d"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "true",
+        "x-workday-operation-id": "96e7ee2167ea1000074ac1d67d180828",
+        "x-workday-secured-by-domains": [
+          "Self-Service: Mentoring",
+          "Worker Data: Mentoring"
+        ]
+      }
+    },
+    "/mentorships/{ID}/close": {
+      "post": {
+        "tags": [
+          "mentorships"
+        ],
+        "summary": "Closes the mentorship.",
+        "description": "Functional Description\n---\nThe Close Mentorship endpoint will be used to Close mentorships.\n\nExample Use Cases\n---\nESS: Worker or Mentor wants to close the mentorship.\n\nAdditional Information\n---\n* Security for ESS and MSS follows the security policy of the Manage Mentorship business process policy.\n** Close \\~Mentorship\\~ with\n* If the business policy for Manage \\~Mentorship\\~ has an approval step, then the mentorship will not be closed until the mentorship event is approved.\n\n<b>Secured By Business Process Type:</b> Manage Mentorship\n\n<b>Scope:</b> Career and Development Planning, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/closeMentorshipInput_96e7ee2167ea10001dd469373766088b"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/closeMentorshipInput_96e7ee2167ea10001dd469373766088b"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A119 | End Date can't be before the Start Date. |\n| Critical | A974 | You cannot edit this \\~mentorship\\~ again since your previous \\~mentorship\\~ edit has not been approved. |\n| Critical | A978 | You can't close a closed \\~mentorship\\~. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "96e7ee2167ea10001dd51060069e088f",
+        "x-workday-secured-by-business-process-types": [
+          "Manage Mentorship"
+        ]
+      }
+    },
+    "/mentorships/{ID}": {
+      "get": {
+        "tags": [
+          "mentorships"
+        ],
+        "summary": "Get all mentorships",
+        "description": "Returns mentorships viewable by authenticated user.\n\n<b>Secured By Domain:</b> Self-Service: Mentoring, Worker Data: Mentoring\n\n<b>Scope:</b> Career and Development Planning, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mentorshipDetail_ff0d12e68ab310001383c6eeeee0001d"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "true",
+        "x-workday-operation-id": "96e7ee2167ea1000074ac1d67d180828",
+        "x-workday-secured-by-domains": [
+          "Self-Service: Mentoring",
+          "Worker Data: Mentoring"
+        ]
+      }
+    },
+    "/mentorships/{ID}/edit": {
+      "post": {
+        "tags": [
+          "mentorships"
+        ],
+        "summary": "Edit the mentorship.",
+        "description": "Functional Description\n---\nThe Edit Mentorship endpoint will be used to Edit the mentorships.\n\nExample Use Cases\n---\nESS: Worker or Mentor wants to edit the mentorship to update additional informations.\n\nAdditional Information\n---\n* Security for ESS and MSS follows the security policy of the Manage Mentorship business process policy.\nEdit \\~Mentorship\\~ with\n* If the business policy for Manage \\~Mentorship\\~ has an approval step, then the mentorship will not be updated until the mentorship event is approved.\n\n<b>Secured By Business Process Type:</b> Manage Mentorship\n\n<b>Scope:</b> Career and Development Planning, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/editMentorshipInput_d8a7d527cba210002b7fb16a7a42082a"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/editMentorshipInput_d8a7d527cba210002b7fb16a7a42082a"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A119 | End Date can't be before the Start Date. |\n| Critical | A974 | You cannot edit this \\~mentorship\\~ again since your previous \\~mentorship\\~ edit has not been approved. |\n| Critical | A977 | You can't edit a closed \\~mentorship\\~. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "d8a7d527cba210002bf03817fa8d0834",
+        "x-workday-secured-by-business-process-types": [
+          "Manage Mentorship"
+        ]
+      }
+    },
+    "/createMentorshipForWorker": {
+      "post": {
+        "tags": [
+          "createMentorshipForWorker"
+        ],
+        "summary": "Creates a mentorship between two workers.",
+        "description": "Functional Description\n---\nThe Create Mentorship For Worker endpoint is used to create new mentorships for between two workers.\n\nExample Use Cases\n---\nA manager can create a mentorship for their direct report, and have the ability to choose a mentor, mentor type, and provide a purpose.\nAn Admin can create a mentorship between a worker and a mentor.\n\nAdditional Information\n---\nThe security follows the security policy of the Manage Mentorship business process.\nThe mentee, mentor, mentor type, purpose, and comment are specified in the body of the request.\nIf the business definition for Manage \\~Mentorship\\~ has an approval step, then the mentorship is not created until the mentorship event is approved in Workday.\n\n<b>Secured By Business Process Type:</b> Manage Mentorship\n\n<b>Scope:</b> Career and Development Planning, Worker Profile and Skills",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createMentorshipForWorkerInput_9250dd1b917610001f4b181b79d90320"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/createMentorshipForWorkerInput_9250dd1b917610001f4b181b79d90320"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A119 | End Date can't be before the Start Date. |\n| Critical | A971 | This worker is terminated. Select another worker. |\n| Critical | A972 | An active \\~mentorship\\~ for this \\~mentor\\~ type already exists. |\n| Critical | A973 | You can't create a \\~mentorship\\~ when there is an event in progress with the same \\~mentor\\~ and \\~mentor\\~ type. |\n| Critical | A975 | This worker is not available to mentor. Select another worker. |\n| Critical | A976 | You can't select yourself as a \\~mentee\\~. |\n| Critical | A979 | Enter a different \\~mentor\\~. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "9250dd1b917610001d929b470f6a02e5",
+        "x-workday-secured-by-business-process-types": [
+          "Manage Mentorship"
+        ]
+      }
+    },
+    "/createMentorshipForMe": {
+      "post": {
+        "tags": [
+          "createMentorshipForMe"
+        ],
+        "summary": "Creates a mentorship for the current processing worker where the user is also the mentee.",
+        "description": "Functional Description\n---\nThe Create Mentorship For Me endpoint is used by a user to create new mentorships for themself.\n\nExample Use Cases\n---\nESS: An employee wants to create a mentorship for themselves and choose a mentor, mentor type, and provide a purpose.\n\nAdditional Information\n---\n* The security for the employee follows the security policy of the Manage Mentorship business process.\n* The mentee will default to current processing worker, and the mentor is specified in the body of the request.\n* If the business definition for Manage Mentorship has an approval step, then the mentorship is not created until the mentorship event is approved in Workday.\n\n<b>Secured By Business Process Type:</b> Manage Mentorship\n\n<b>Scope:</b> Career and Development Planning, Worker Profile and Skills",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createMentorshipForMeInput_9250dd1b917610001d2a9f52b53f02d2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/createMentorshipForMeInput_9250dd1b917610001d2a9f52b53f02d2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A119 | End Date can't be before the Start Date. |\n| Critical | A971 | This worker is terminated. Select another worker. |\n| Critical | A972 | An active \\~mentorship\\~ for this \\~mentor\\~ type already exists. |\n| Critical | A973 | You can't create a \\~mentorship\\~ when there is an event in progress with the same \\~mentor\\~ and \\~mentor\\~ type. |\n| Critical | A975 | This worker is not available to mentor. Select another worker. |\n| Critical | A979 | Enter a different \\~mentor\\~. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "9250dd1b917610001cb89734400a02c6",
+        "x-workday-secured-by-business-process-types": [
+          "Manage Mentorship"
+        ]
+      }
+    },
+    "/successionPlanEvents": {
+      "get": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Get Succession Plan Events",
+        "description": "Retrieves all the information for succession plan events. You must specify a succession plan ID to retrieve all related succession plan events. If a succession plan ID is not specified, returns a blank response.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "successionPlan",
+            "in": "query",
+            "description": "The succession plan instance.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/successionPlanEventDetails_e1e8533ee9081000121e9843ab8a0000"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "e1e8533ee9081000121fa7d375b00000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      },
+      "post": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Creates a succession plan event instance for a succession plan. This roughly corresponds to submissions through the Manage Succession Plan task.",
+        "description": "Creates a single succession plan event instance associated to an active succession plan with the specified data. In the request body, specify this required field: Succession Plan ID.\n\n<b>Secured By Business Process Type:</b> Manage Succession Plan\n\n<b>Scope:</b> Talent Pipeline",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/successionPlanEventDetails_e1e8533ee9081000121e9843ab8a0000"
+              },
+              "x-workday-multipart-root-part-name": "jsonData"
+            }
+          },
+          "x-workday-multipart-root-part-name": "jsonData"
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanEventDetails_e1e8533ee9081000121e9843ab8a0000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A165 | The attachment category is invalid for this business process. |\n| Critical | A175 | The file is required. |\n| Critical | A178 | The business process has already been initiated. |\n| Critical | A178 | The succession plan has an in progress succession plan event. Complete the in progress event before creating a new event. Workday only supports 1 in progress event for an active succession plan. |\n| Critical | A200 | You can't comment on this business process type. |\n| Critical | A205 | You don't have the security permission on this business process to add attachments. |\n| Critical | A206 | Attachments are not enabled for this business process. |\n| Critical | A207 | You've exceeded the attachment file size limit of [tenant setup attachment limit]KB. |\n| Critical | A211 | The attachment category is required. |\n| Critical | A219 | The business process action isn't valid. |\n| Critical | A221 | The attachment category isn't enabled for this business process. |\n| Critical | A228 | [customer event validation message] |\n| Critical | A2785 | Specify an active succession plan or activate the inactive plan. The succession plan you submitted is inactive. |\n| Critical | A3291 | You must have the delegation permission to initiate this event. Ensure that you have all the required permissions and configuration for this action. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "86ac95d243841000150a8116a04d0000",
+        "x-workday-secured-by-business-process-types": [
+          "Manage Succession Plan"
+        ]
+      }
+    },
+    "/successionPlanEvents/{ID}/candidates": {
+      "get": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Retrieves a collection of information for succession plan candidates for a succession plan event.",
+        "description": "Retrieves all information for the succession plan candidates for the specified single succession plan Event ID. You can only specify a WID. When you don't specify the WID for the succession plant Event ID in the URL, Workday returns an error and the operation will fail.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A210 | This succession plan event has a pending action that conflicts with this one. Workday only supports 1 in progress event for an active succession plan. The initiating user must complete the in progress event before you can update the succession plan. |\n| Critical | A2777 | Specify an in progress succession plan event. The event you have specified is completed or cannot be changed unless it's in progress. |\n| Critical | A2785 | Specify an active succession plan or activate the inactive plan. The succession plan you submitted is inactive. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "1cfdaf8784fb10002824820310d50000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      },
+      "post": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Creates a single succession plan candidate instance with the specified data.",
+        "description": "Creates a single succession plan candidate instance with the specified data. An in progress succession plan event is required. This roughly corresponds to a user adding a candidate on the Manage Succession Plan task.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A210 | This succession plan event has a pending action that conflicts with this one. Workday only supports 1 in progress event for an active succession plan. The initiating user must complete the in progress event before you can update the succession plan. |\n| Critical | A2777 | Specify an in progress succession plan event. The event you have specified is completed or cannot be changed unless it's in progress. |\n| Critical | A2785 | Specify an active succession plan or activate the inactive plan. The succession plan you submitted is inactive. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "0567d730fbb910001fdf232744080000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      }
+    },
+    "/successionPlanEvents/{ID}/candidates/{subresourceID}": {
+      "get": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Retrieves succession plan candidates for the specified succession plan Event ID.",
+        "description": "Retrieves all information for the succession plan candidates for the specified single succession plan Event ID. You can only specify a WID. When you don't specify the WID for the succession plant Event ID in the URL, Workday returns an error and the operation will fail.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subresourceID",
+            "in": "path",
+            "description": "The Workday ID of the subresource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A210 | This succession plan event has a pending action that conflicts with this one. Workday only supports 1 in progress event for an active succession plan. The initiating user must complete the in progress event before you can update the succession plan. |\n| Critical | A2777 | Specify an in progress succession plan event. The event you have specified is completed or cannot be changed unless it's in progress. |\n| Critical | A2785 | Specify an active succession plan or activate the inactive plan. The succession plan you submitted is inactive. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "1cfdaf8784fb10002824820310d50000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      },
+      "delete": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Removes a succession plan candidate instance associated to the succession plan event.",
+        "description": "Deletes a succession plan candidate with the specified succession plan candidate ID. This operation is equivalent to removing a candidate in the Manage Succession Plan task. Removing a candidate requires: an in-progress succession plan event, active succession plan, active position, and at least one candidate on the plan.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subresourceID",
+            "in": "path",
+            "description": "The Workday ID of the subresource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data. Deleting resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MULTIPLE_INSTANCE_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A12 | Specify a valid succession candidate. You can't remove workers from a succession plan event that are not currently on the event. |\n| Critical | A210 | This succession plan event has a pending action that conflicts with this one. Workday only supports 1 in progress event for an active succession plan. The initiating user must complete the in progress event before you can update the succession plan. |\n| Critical | A2777 | Specify an in progress succession plan event. The event you have specified is completed or cannot be changed unless it's in progress. |\n| Critical | A2785 | Specify an active succession plan or activate the inactive plan. The succession plan you submitted is inactive. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "f50b3affc9e6100016f3e8cf43180000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      },
+      "patch": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Updates a new succession plan candidate instance associated to the succession plan event.",
+        "description": "Updates a single succession plan candidate instance with the specified data. An in progress succession plan event is required. This roughly corresponds to a user adding a candidate on the Manage Succession Plan task.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subresourceID",
+            "in": "path",
+            "description": "The Workday ID of the subresource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data. Updating resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A12 | Specify a candidate associated with this succession plan event. The Candidate ID you submitted isn’t associated with this succession plan event. |\n| Critical | A210 | This succession plan event has a pending action that conflicts with this one. Workday only supports 1 in progress event for an active succession plan. The initiating user must complete the in progress event before you can update the succession plan. |\n| Critical | A2777 | Specify an in progress succession plan event. The event you have specified is completed or cannot be changed unless it's in progress. |\n| Critical | A2785 | Specify an active succession plan or activate the inactive plan. The succession plan you submitted is inactive. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "84c25d861b46100015056d5340f50000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      }
+    },
+    "/successionPlanEvents/{ID}/submit": {
+      "post": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Submits a succession plan event.",
+        "description": "Submits an in progress succession plan event specified by the Workday ID (WID). This operation is equivalent to submitting a succession plan event in the Manage Succession Plan task. To submit the succession plan event, specify an empty request body: {}.\n\nTo add a comment, specify this request body:\n{\n    \"businessProcessParameters\": {\n        \"action\":{\n            \"id\": \"d9e4223e446c11de98360015c5e6daf6\"\n        },\n         \"comment\": \"Test comment.\"\n    }\n}\n\n<b>Secured By Business Process Type:</b> Manage Succession Plan\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/submitSuccessionPlanEvent_d5dd3422c77210000f4fb059cbfb0000"
+              },
+              "x-workday-multipart-root-part-name": "jsonData"
+            }
+          },
+          "x-workday-multipart-root-part-name": "jsonData"
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/submitSuccessionPlanEvent_d5dd3422c77210000f4fb059cbfb0000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A200 | You can't comment on this business process type. |\n| Critical | A228 | [customer event validation message] |\n| Critical | A2777 | Specify an in progress succession plan event. The event you have specified is completed or cannot be changed unless it's in progress. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "d5dd3422c77210000eaffa0fcee10000",
+        "x-workday-secured-by-business-process-types": [
+          "Manage Succession Plan"
+        ]
+      }
+    },
+    "/successionPlanEvents/{ID}": {
+      "get": {
+        "tags": [
+          "successionPlanEvents"
+        ],
+        "summary": "Get Succession Plan Events",
+        "description": "Retrieves all succession plan events with the specified succession plan ID.\n\n<b>Secured By Domain:</b> Worker Data: Succession\n\n<b>Scope:</b> Talent Pipeline",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/successionPlanEventDetails_e1e8533ee9081000121e9843ab8a0000"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "e1e8533ee9081000121fa7d375b00000",
+        "x-workday-secured-by-domains": [
+          "Worker Data: Succession"
+        ]
+      }
+    },
+    "/values/successionPlan/readiness/": {
+      "get": {
+        "tags": [
+          "Prompt Values"
+        ],
+        "description": "Retrieves instances that can be used as values for other endpoint parameters in this service.",
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MULTIPLE_INSTANCE_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-protected-usage-enabled": false,
+        "x-workday-internal-try-enabled": "false"
+      },
+      "parameters": [
+        {
+          "name": "limit",
+          "in": "query",
+          "description": "The maximum number of objects in a single response. The default and maximum is 1000.",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "description": "A search string that matches display IDs. The search is case-insensitive and matches words that start with the given string.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-workday-confidence-level": "Production"
+    },
+    "/values/successionPlan/members/": {
+      "get": {
+        "tags": [
+          "Prompt Values"
+        ],
+        "description": "Retrieves instances that can be used as values for other endpoint parameters in this service.",
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MULTIPLE_INSTANCE_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-protected-usage-enabled": false,
+        "x-workday-internal-try-enabled": "false"
+      },
+      "parameters": [
+        {
+          "name": "limit",
+          "in": "query",
+          "description": "The maximum number of objects in a single response. The default and maximum is 1000.",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "description": "A search string that matches display IDs. The search is case-insensitive and matches words that start with the given string.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-workday-confidence-level": "Production"
+    },
+    "/values/successionPlan/strategies/": {
+      "get": {
+        "tags": [
+          "Prompt Values"
+        ],
+        "description": "Retrieves instances that can be used as values for other endpoint parameters in this service.",
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MULTIPLE_INSTANCE_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-protected-usage-enabled": false,
+        "x-workday-internal-try-enabled": "false"
+      },
+      "parameters": [
+        {
+          "name": "limit",
+          "in": "query",
+          "description": "The maximum number of objects in a single response. The default and maximum is 1000.",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "description": "A search string that matches display IDs. The search is case-insensitive and matches words that start with the given string.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-workday-confidence-level": "Production"
+    }
+  },
+  "components": {
+    "schemas": {
+      "INSTANCE_MODEL_REFERENCE": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^(([0-9a-f]{32})|(\\S+=\\S+))$",
+            "type": "string",
+            "description": "Workday Id or Reference Id of the instance."
+          },
+          "descriptor": {
+            "type": "string",
+            "description": "The display name of the instance",
+            "readOnly": true
+          },
+          "href": {
+            "type": "string",
+            "description": "A link to the instance",
+            "readOnly": true
+          }
+        }
+      },
+      "ERROR_MODEL_REFERENCE": {
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "A description of the error"
+          },
+          "code": {
+            "type": "string",
+            "description": "The code that corresponds to the error message. Use the error code to drive programmatic error-handling behavior. Don't use error message strings for this purpose because they are subject to change"
+          },
+          "field": {
+            "type": "string",
+            "description": "The field related to the error"
+          },
+          "path": {
+            "type": "string",
+            "description": "The path of the field related to the error"
+          },
+          "severity": {
+            "type": "string",
+            "description": "Severity of the validation (e.g. Critical, Warning)."
+          },
+          "internalMessage": {
+            "type": "string",
+            "description": "Internal message providing additional context for the validation (e.g. representation content validation details)."
+          }
+        }
+      },
+      "VALIDATION_ERROR_MODEL_REFERENCE": {
+        "allOf": [
+          {
+            "required": [
+              "error"
+            ],
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "description": "A description of the error"
+              },
+              "errors": {
+                "type": "array",
+                "description": "An array of validation errors",
+                "items": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FACETS_MODEL_REFERENCE": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "descriptor": {
+              "type": "string",
+              "description": "A description of the facet"
+            },
+            "facetParameter": {
+              "type": "string",
+              "description": "The alias used to select the facet"
+            },
+            "values": {
+              "type": "array",
+              "description": "the facet values",
+              "items": {
+                "required": [
+                  "id"
+                ],
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "description": "The number of instances returned by this facet",
+                    "format": "int32"
+                  },
+                  "id": {
+                    "pattern": "^(([0-9a-f]{32})|(\\S+=\\S+))$",
+                    "type": "string",
+                    "description": "Workday Id or Reference Id of the instance."
+                  },
+                  "descriptor": {
+                    "type": "string",
+                    "description": "A description of the facet"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "A link to the instance",
+                    "readOnly": true
+                  }
+                }
+              }
+            }
+          },
+          "description": "This object represents the possible facets for this resource",
+          "readOnly": true
+        }
+      },
+      "MULTIPLE_INSTANCE_MODEL_REFERENCE": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+            }
+          }
+        }
+      },
+      "position_75cbd85470fd100020aa03f13fc60000": {
+        "description": "The position associated with the succession plan.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "supervisoryOrg_75cbd85470fd1000207a3a6adb310000": {
+        "description": "The organization associated with the succession plan.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "x-readOnly": true
+      },
+      "successionCandidates_75cbd85470fd10002095e3225a7c0000": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id for Succession Plan Candidate"
+              }
+            }
+          }
+        ]
+      },
+      "successionPlan_75cbd85470fd100020bd5832a2980000": {
+        "description": "The reference to the succession plan instance.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "x-readOnly": true
+      },
+      "successionPlanDetails_7e3bb9fc9368100020f4312542580000": {
+        "allOf": [
+          {
+            "required": [
+              "position"
+            ],
+            "type": "object",
+            "properties": {
+              "position": {
+                "$ref": "#/components/schemas/position_75cbd85470fd100020aa03f13fc60000"
+              },
+              "activeStatus": {
+                "type": "string",
+                "description": "If true, the succession plan is active.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text",
+                "x-readOnly": true
+              },
+              "successionPlanNotes": {
+                "type": "string",
+                "description": "The notes associated with the succession plan.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text",
+                "x-readOnly": true,
+                "x-workday-confidence-level": "Production"
+              },
+              "supervisoryOrg": {
+                "$ref": "#/components/schemas/supervisoryOrg_75cbd85470fd1000207a3a6adb310000"
+              },
+              "successionCandidates": {
+                "type": "array",
+                "description": "The candidates associated with the succession plan.",
+                "items": {
+                  "$ref": "#/components/schemas/successionCandidates_75cbd85470fd10002095e3225a7c0000"
+                },
+                "x-workday-type": "Multi-instance",
+                "x-readOnly": true
+              },
+              "successionPlan": {
+                "$ref": "#/components/schemas/successionPlan_75cbd85470fd100020bd5832a2980000"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "closeMentorshipReason_ff0d12e68ab310001383c73aec170021": {
+        "description": "Returns the end \\~mentorship\\~ reason of the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentee_ff0d12e68ab310001383c75da64c0025": {
+        "description": "Returns the \\~mentee\\~ in the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentorType_ff0d12e68ab310001383c74c41d00023": {
+        "description": "Returns \\~mentor\\~ type for the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentor_ff0d12e68ab310001383c7547e180024": {
+        "description": "Returns the \\~mentor\\~ in the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentorship_ff0d12e68ab310001383c74347a10022": {
+        "description": "Returns the \\~mentorship\\~ for a \\~worker\\~ and enables you to drill into details.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentorshipDetail_ff0d12e68ab310001383c6eeeee0001d": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string",
+                "description": "Returns the start date of the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "closeMentorshipReason": {
+                "$ref": "#/components/schemas/closeMentorshipReason_ff0d12e68ab310001383c73aec170021"
+              },
+              "mentee": {
+                "$ref": "#/components/schemas/mentee_ff0d12e68ab310001383c75da64c0025"
+              },
+              "mentorType": {
+                "$ref": "#/components/schemas/mentorType_ff0d12e68ab310001383c74c41d00023"
+              },
+              "mentor": {
+                "$ref": "#/components/schemas/mentor_ff0d12e68ab310001383c7547e180024"
+              },
+              "mentorship": {
+                "$ref": "#/components/schemas/mentorship_ff0d12e68ab310001383c74347a10022"
+              },
+              "endDate": {
+                "type": "string",
+                "description": "Returns the end date of the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Returns the purpose of the \\~mentorship\\~.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "closeMentorshipReason_96e7ee2167ea10001dd4695b51ef088c": {
+        "description": "Returns the proposed Close Mentorship Reason for the mentorship.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "closeMentorshipInput_96e7ee2167ea10001dd469373766088b": {
+        "allOf": [
+          {
+            "required": [
+              "closeMentorshipReason",
+              "endDate",
+              "startDate"
+            ],
+            "type": "object",
+            "properties": {
+              "comment": {
+                "type": "string",
+                "description": "Returns the comment for the last event record done by the processing person, without security filtering. If no comment was entered, the result will be empty. This CRF is for Integration use only.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "startDate": {
+                "type": "string",
+                "description": "The proposed Start date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "closeMentorshipReason": {
+                "$ref": "#/components/schemas/closeMentorshipReason_96e7ee2167ea10001dd4695b51ef088c"
+              },
+              "endDate": {
+                "type": "string",
+                "description": "The proposed End date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "editMentorshipInput_d8a7d527cba210002b7fb16a7a42082a": {
+        "allOf": [
+          {
+            "required": [
+              "startDate"
+            ],
+            "type": "object",
+            "properties": {
+              "comment": {
+                "type": "string",
+                "description": "Returns the comment for the last event record done by the processing person, without security filtering. If no comment was entered, the result will be empty. This CRF is for Integration use only.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Returns the proposed purpose for the \\~mentorship\\~.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "startDate": {
+                "type": "string",
+                "description": "The proposed Start date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "endDate": {
+                "type": "string",
+                "description": "The proposed End date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "mentor_699b9531b615100015c7fb063b14009f": {
+        "description": "Returns the proposed \\~mentor\\~ for the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentorType_9250dd1b917610001f4b186789ce0324": {
+        "description": "Returns the proposed Mentor Type for the mentorship.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentee_9250dd1b917610001f4b183baf160321": {
+        "description": "Returns the proposed \\~mentee\\~ for the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "createMentorshipForWorkerInput_9250dd1b917610001f4b181b79d90320": {
+        "allOf": [
+          {
+            "required": [
+              "mentee",
+              "mentor",
+              "mentorType",
+              "startDate"
+            ],
+            "type": "object",
+            "properties": {
+              "endDate": {
+                "type": "string",
+                "description": "The proposed End date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "startDate": {
+                "type": "string",
+                "description": "The proposed Start date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Returns the proposed purpose for the \\~mentorship\\~.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "mentor": {
+                "$ref": "#/components/schemas/mentor_699b9531b615100015c7fb063b14009f"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Returns the comment for the last event record done by the processing person, without security filtering. If no comment was entered, the result will be empty. This CRF is for Integration use only.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "mentorType": {
+                "$ref": "#/components/schemas/mentorType_9250dd1b917610001f4b186789ce0324"
+              },
+              "mentee": {
+                "$ref": "#/components/schemas/mentee_9250dd1b917610001f4b183baf160321"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "mentor_699b9531b615100015e0252e7f4b00a4": {
+        "description": "Returns the proposed \\~mentor\\~ for the \\~mentorship\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "mentorType_9250dd1b917610001d2a9f91dd7602d4": {
+        "description": "Returns the proposed Mentor Type for the mentorship.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "createMentorshipForMeInput_9250dd1b917610001d2a9f52b53f02d2": {
+        "allOf": [
+          {
+            "required": [
+              "mentor",
+              "mentorType",
+              "startDate"
+            ],
+            "type": "object",
+            "properties": {
+              "endDate": {
+                "type": "string",
+                "description": "The proposed End date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "startDate": {
+                "type": "string",
+                "description": "The proposed Start date for the \\~mentorship\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "mentor": {
+                "$ref": "#/components/schemas/mentor_699b9531b615100015e0252e7f4b00a4"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Returns the proposed purpose for the \\~mentorship\\~.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Returns the comment for the last event record done by the processing person, without security filtering. If no comment was entered, the result will be empty. This CRF is for Integration use only.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "mentorType": {
+                "$ref": "#/components/schemas/mentorType_9250dd1b917610001d2a9f91dd7602d4"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "successionPlanCandidate_0567d730fbb910001ec3fad9292e0000": {
+        "description": "This references the candidate from the succession plan event.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "strategy_7e3bb9fc9368100029335c12f36c0000": {
+        "description": "The value indicating the strategy for the succession plan candidate to fill the position.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "readiness_7e3bb9fc9368100029335c12f36c0003": {
+        "description": "The value indicating the readiness of the succession plan candidate to fill the position.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000": {
+        "allOf": [
+          {
+            "required": [
+              "readiness",
+              "successionPlanCandidate"
+            ],
+            "type": "object",
+            "properties": {
+              "successionPlanCandidate": {
+                "$ref": "#/components/schemas/successionPlanCandidate_0567d730fbb910001ec3fad9292e0000"
+              },
+              "strategy": {
+                "$ref": "#/components/schemas/strategy_7e3bb9fc9368100029335c12f36c0000"
+              },
+              "readiness": {
+                "$ref": "#/components/schemas/readiness_7e3bb9fc9368100029335c12f36c0003"
+              },
+              "topCandidate": {
+                "type": "boolean",
+                "description": "If true, the succession plan candidate is considered the top candidate for the position.",
+                "example": true,
+                "x-workday-type": "Boolean",
+                "x-conditionally-hidden": true
+              },
+              "notes": {
+                "type": "string",
+                "description": "The notes for a succession plan candidate.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "temporaryFill": {
+                "type": "boolean",
+                "description": "If true, the succession plan candidate is a temporary fill for the position.",
+                "example": true,
+                "x-workday-type": "Boolean",
+                "x-conditionally-hidden": true
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "person_86093b8a932f10001499f38c72410130": {
+        "description": "Comment made by Person",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "comments_86093b8a932f10001499f356ff83012e": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "person": {
+                "$ref": "#/components/schemas/person_86093b8a932f10001499f38c72410130"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Comment",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "commentDate": {
+                "type": "string",
+                "description": "Gives the moment at which the instance was originally created.",
+                "format": "date",
+                "x-workday-type": "Date"
+              }
+            }
+          }
+        ]
+      },
+      "uploadedBy_b32ff437243510000e22e06470370160": {
+        "description": "Returns the primary Role of the person who uploaded the Attachment.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "x-readOnly": true
+      },
+      "category_43b30ba735b8100011ee4781a9d50146": {
+        "description": "Returns the category of a Business Process Attachment.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "contentType_43b30ba735b8100011ee47993f11014a": {
+        "description": "Content type of the attachment",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "eventAttachmentsForToolbar_43b30ba735b8100011ee4767246d0143": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "uploadDate": {
+                "type": "string",
+                "description": "Returns Date the Business Process Attachment was updated.",
+                "format": "date",
+                "x-workday-type": "Date",
+                "x-readOnly": true
+              },
+              "fileLength": {
+                "type": "integer",
+                "description": "File length of the attachment",
+                "format": "int32",
+                "example": 99999999999,
+                "x-workday-type": "Numeric"
+              },
+              "fileName": {
+                "maxLength": 255,
+                "type": "string",
+                "description": "File name of the attachment",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "uploadedBy": {
+                "$ref": "#/components/schemas/uploadedBy_b32ff437243510000e22e06470370160"
+              },
+              "category": {
+                "$ref": "#/components/schemas/category_43b30ba735b8100011ee4781a9d50146"
+              },
+              "description": {
+                "type": "string",
+                "description": "Event attachment description",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "file": {
+                "type": "string",
+                "description": "For RaaS Only (Reports used as Web Services).  Returns the raw Base64 data for an attachment or image.",
+                "format": "binary",
+                "x-workday-type": "File"
+              },
+              "contentType": {
+                "$ref": "#/components/schemas/contentType_43b30ba735b8100011ee47993f11014a"
+              },
+              "id": {
+                "type": "string",
+                "description": "The id for Event Attachment"
+              }
+            }
+          }
+        ]
+      },
+      "businessProcessParameters_e1e8533ee908100014606b5883990000": {
+        "description": "The Action Event instance used with the businessProcessLinkable service representations.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/businessProcessParameters_342f575279b410000d973a8f64650000"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "position_e1e8533ee90810001556d03b44590000": {
+        "description": "The position associated with a succession plan event.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "x-readOnly": true
+      },
+      "successionPlan_e1e8533ee9081000128f4bc88ee70001": {
+        "description": "The succession plan instance.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "successionCandidates_e1e8533ee9081000128f4bc88ee70000": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/successionPlanCandidateDetails_7e3bb9fc9368100028e52fe266950000"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id for Succession Plan Candidate"
+              }
+            }
+          }
+        ]
+      },
+      "successionPlanEventDetails_e1e8533ee9081000121e9843ab8a0000": {
+        "allOf": [
+          {
+            "required": [
+              "successionPlan"
+            ],
+            "type": "object",
+            "properties": {
+              "externalCandidate": {
+                "type": "boolean",
+                "description": "If true, the succession plan can include external candidates to fill the position.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "businessProcessParameters": {
+                "$ref": "#/components/schemas/businessProcessParameters_e1e8533ee908100014606b5883990000"
+              },
+              "position": {
+                "$ref": "#/components/schemas/position_e1e8533ee90810001556d03b44590000"
+              },
+              "successionPlan": {
+                "$ref": "#/components/schemas/successionPlan_e1e8533ee9081000128f4bc88ee70001"
+              },
+              "successionPlanNotes": {
+                "type": "string",
+                "description": "The notes associated with a succession plan event.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text",
+                "x-workday-confidence-level": "Production"
+              },
+              "successionCandidates": {
+                "type": "array",
+                "description": "The candidates associated with a succession plan event.",
+                "items": {
+                  "$ref": "#/components/schemas/successionCandidates_e1e8533ee9081000128f4bc88ee70000"
+                },
+                "x-workday-type": "Multi-instance",
+                "x-readOnly": true
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "businessProcessParameters_d5dd3422c77210000f4fb2266d100000": {
+        "description": "The Action Event instance used with the businessProcessLinkable service representations.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/businessProcessParameters_342f575279b410000d973a8f64650000"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "submitSuccessionPlanEvent_d5dd3422c77210000f4fb059cbfb0000": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "businessProcessParameters": {
+                "$ref": "#/components/schemas/businessProcessParameters_d5dd3422c77210000f4fb2266d100000"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "attachments_43b30ba735b8100010e21c8b136f0119": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/eventAttachmentsForToolbar_43b30ba735b8100011ee4767246d0143"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id for Event Attachment (Derived)  \nExample(s): File_ID=Sample_Value"
+              }
+            }
+          }
+        ]
+      },
+      "for_5d688bd57bb910001815ab3dd10024a9": {
+        "description": "The thing which this business process is about. It could be another business process if this is a sub-process",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "x-readOnly": true
+      },
+      "action_38ff08ab6736100010816009079d0126": {
+        "description": "a set containing no instances",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "overallBusinessProcess_5d688bd57bb910001815ab49927724aa": {
+        "description": "Returns the Top Level (overall) Business Process that this Event is part of or returns the same instance if this Event is not a sub-process.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "x-readOnly": true
+      },
+      "comments_38ff08ab6736100010b0e3c4dbb3012b": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/comments_86093b8a932f10001499f356ff83012e"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id for Comment"
+              }
+            }
+          }
+        ]
+      },
+      "transactionStatus_7457adcbe0fa1000089b63ab3a510000": {
+        "description": "Transaction Status for Facet Search",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "businessProcessParameters_342f575279b410000d973a8f64650000": {
+        "allOf": [
+          {
+            "required": [
+              "action"
+            ],
+            "type": "object",
+            "properties": {
+              "warningValidations": {
+                "type": "string",
+                "description": "Warning message for an action event triggered by a condition.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text",
+                "x-readOnly": true
+              },
+              "attachments": {
+                "type": "array",
+                "description": "Returns attachments associated with this business process that are uploaded from the toolbar and are accessible to the processing person. Returns blank if either of these conditions are not met.",
+                "items": {
+                  "$ref": "#/components/schemas/attachments_43b30ba735b8100010e21c8b136f0119"
+                },
+                "x-workday-type": "Multi-instance"
+              },
+              "overallStatus": {
+                "type": "string",
+                "description": "The current status of the business process.  For example: Successfully Completed, Denied, Terminated.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text",
+                "x-readOnly": true
+              },
+              "for": {
+                "$ref": "#/components/schemas/for_5d688bd57bb910001815ab3dd10024a9"
+              },
+              "criticalValidations": {
+                "type": "string",
+                "description": "Validation message for an action event triggered by a condition.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text",
+                "x-readOnly": true
+              },
+              "comment": {
+                "type": "string",
+                "description": "Returns a null.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "action": {
+                "$ref": "#/components/schemas/action_38ff08ab6736100010816009079d0126"
+              },
+              "overallBusinessProcess": {
+                "$ref": "#/components/schemas/overallBusinessProcess_5d688bd57bb910001815ab49927724aa"
+              },
+              "comments": {
+                "type": "array",
+                "description": "Returns the comments for the current business process.",
+                "items": {
+                  "$ref": "#/components/schemas/comments_38ff08ab6736100010b0e3c4dbb3012b"
+                },
+                "x-workday-type": "Multi-instance",
+                "x-readOnly": true
+              },
+              "transactionStatus": {
+                "$ref": "#/components/schemas/transactionStatus_7457adcbe0fa1000089b63ab3a510000"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://<tenantAuthorizationHostname>",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}

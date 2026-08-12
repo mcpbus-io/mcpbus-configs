@@ -1,0 +1,1368 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "performanceManagement",
+    "description": "The Performance Management service enables applications to access and create feedback about workers in the system.",
+    "version": "v2",
+    "x-workday-internal-source": "xo",
+    "x-workday-internal-routing": "Public",
+    "x-workday-internal-protected-usage-enabled": false,
+    "x-workday-internal-service-container-id": "ba74f44bc90e107329f63720f87f0038"
+  },
+  "servers": [
+    {
+      "url": "https://<tenantHostname>/performanceManagement/v2"
+    }
+  ],
+  "tags": [
+    {
+      "name": "feedbackBadges",
+      "description": "Provides the ability to get available feedback badges for use in providing feedback."
+    },
+    {
+      "name": "workers"
+    }
+  ],
+  "paths": {
+    "/workers": {
+      "get": {
+        "tags": [
+          "workers"
+        ],
+        "summary": "(End of Life Date: 2024-01-26 ) Retrieves a collection of workers.",
+        "description": "Retrieves all workers. Use the search parameter to search for workers by name. The search is case-insensitive.\n\n<b>Secured By Domain:</b> FLW Service, Self-Service: Current Staffing Information, Worker Data: Public Worker Reports\n\n<b>Scope:</b> Staffing",
+        "parameters": [
+          {
+            "name": "includeTerminatedWorkers",
+            "in": "query",
+            "description": "Include terminated workers in the output",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/workerSummary_a489aef739484c13a59e6d502a9e7b68"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "x-workday-internal-try-enabled": "true",
+        "x-workday-operation-id": "94a39e71541b468fa895955508287acd",
+        "x-workday-secured-by-domains": [
+          "FLW Service",
+          "Self-Service: Current Staffing Information",
+          "Worker Data: Public Worker Reports"
+        ]
+      }
+    },
+    "/workers/{ID}/anytimeFeedbackEntries/{subresourceID}": {
+      "get": {
+        "tags": [
+          "workers"
+        ],
+        "summary": "(End of Life Date: 2024-01-26 ) Retrieves a feedback given instance with the specified ID.",
+        "description": "Retrieves a single feedback given instance.\n\n<b>Secured By Domain:</b> Self-Service: Anytime Feedback, Worker Data: Anytime Feedback\n\n<b>Scope:</b> Performance Enablement, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.\n\n- **ID:** Replace with your actual Workday ID\n- **me**",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ID",
+                "me"
+              ]
+            }
+          },
+          {
+            "name": "subresourceID",
+            "in": "path",
+            "description": "The Workday ID of the subresource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/feedbackSummary_a6ab9069588610002b8c0b4f60a8000f"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "a6ab9069588610002b5247823bd0000d",
+        "x-workday-secured-by-domains": [
+          "Self-Service: Anytime Feedback",
+          "Worker Data: Anytime Feedback"
+        ]
+      }
+    },
+    "/workers/{ID}": {
+      "get": {
+        "tags": [
+          "workers"
+        ],
+        "summary": "(End of Life Date: 2024-01-26 ) Retrieves a worker instance.",
+        "description": "Retrieves a worker instance with the specific ID.\n\n<b>Secured By Domain:</b> FLW Service, Self-Service: Current Staffing Information, Worker Data: Public Worker Reports\n\n<b>Scope:</b> Staffing",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.\n\n- **ID:** Replace with your actual Workday ID\n- **me**",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ID",
+                "me"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/workerProfile_c0a0dce56eb142d39dbffeb505becf7a"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "x-workday-internal-try-enabled": "true",
+        "x-workday-operation-id": "94a39e71541b468fa895955508287acd",
+        "x-workday-secured-by-domains": [
+          "FLW Service",
+          "Self-Service: Current Staffing Information",
+          "Worker Data: Public Worker Reports"
+        ]
+      }
+    },
+    "/workers/{ID}/anytimeFeedbackEntries": {
+      "get": {
+        "tags": [
+          "workers"
+        ],
+        "summary": "(End of Life Date: 2024-01-26 ) Retrieves a collection of feedback given about the specified worker.",
+        "description": "Retrieves all feedback given about the specified worker.\n\n<b>Secured By Domain:</b> Self-Service: Anytime Feedback, Worker Data: Anytime Feedback\n\n<b>Scope:</b> Performance Enablement, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.\n\n- **ID:** Replace with your actual Workday ID\n- **me**",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ID",
+                "me"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "relatesTo",
+            "in": "query",
+            "description": "The Workday ID of the gig related to the given feedback.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/feedbackSummary_a6ab9069588610002b8c0b4f60a8000f"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "a6ab9069588610002b5247823bd0000d",
+        "x-workday-secured-by-domains": [
+          "Self-Service: Anytime Feedback",
+          "Worker Data: Anytime Feedback"
+        ]
+      },
+      "post": {
+        "tags": [
+          "workers"
+        ],
+        "summary": "(End of Life Date: 2024-01-26 ) Creates feedback about the specified worker.",
+        "description": "Creates a single feedback given instance with the specified data. \n\nIn the request body, specify at least this required field: comment. \n\nThis endpoint is equivalent to the Give Feedback task in Workday and initiates the Give Feedback business process.\n\n<b>Secured By Business Process Type:</b> Give Feedback\n\n<b>Scope:</b> Performance Enablement, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.\n\n- **ID:** Replace with your actual Workday ID\n- **me**",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ID",
+                "me"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/giveFeedbackDetail_96569dfd073710000ff99236d1850077"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/giveFeedbackDetail_96569dfd073710000ff99236d1850077"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)\n| Severity | Error Code | Validation Message |\n --- | --- | --- |\n| Critical | A6 | Comment is required. |\n| Critical | A158 | Feedback Badges are disabled, cannot include Feedback Badges in feedback. |\n| Critical | A158 | The ability to submit confidential feedback has been disabled by your administrator. |\n| Critical | A158 | The ability to submit private feedback has been disabled by your administrator. |\n| Critical | A158 | Your tenant has disabled anonymity for anytime feedback. Showing the name of the responder is required. |\n| Critical | A159 | Your feedback can’t be both Confidential and Private. |\n| Critical | A160 | You don't have permission to give feedback on this Gig. |\n| Critical | A161 | Feedback cannot be provided to terminated workers. |\n| Critical | A161 | The Feedback Given Date cannot be in the future. |\n| Critical | A161 | Worker giving the feedback cannot be the same as the worker receiving the feedback. |\n| Critical | A161 | You can't give feedback for this \\~worker\\~ because they already have feedback. |\n| Critical | A161 | You can't give feedback for this \\~worker\\~ because they're not a member of this Gig. |\n| Critical | A161 | You can't load an inactive badge. |",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "96569dfd073710000f283a0bc3b90072",
+        "x-workday-secured-by-business-process-types": [
+          "Give Feedback"
+        ]
+      }
+    },
+    "/feedbackBadges": {
+      "get": {
+        "tags": [
+          "feedbackBadges"
+        ],
+        "summary": "Retrieves a collection of active Feedback Badges.",
+        "description": "Retrieves all active Feedback Badges.\n\n<b>Secured By Business Process Type:</b> Give Feedback\n\n<b>Scope:</b> Performance Enablement, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of objects in a single response. The default is 20. The maximum is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The zero-based index of the first object in a response collection. The default is 0. Use offset with the limit parameter to control paging of a response collection. Example: If limit is 5 and offset is 9, the response returns a collection of 5 objects starting with the 10th object.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/feedbackBadgeDetail_9eab868ca81410001402525d054211f7"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "9eab868ca81410001407d585db1811fa",
+        "x-workday-secured-by-business-process-types": [
+          "Give Feedback"
+        ]
+      }
+    },
+    "/feedbackBadges/{ID}": {
+      "get": {
+        "tags": [
+          "feedbackBadges"
+        ],
+        "summary": "Retrieves a Feedback Badge with the specified ID.",
+        "description": "Retrieves a single Feedback Badge instance\n\n<b>Secured By Business Process Type:</b> Give Feedback\n\n<b>Scope:</b> Performance Enablement, Worker Profile and Skills",
+        "parameters": [
+          {
+            "name": "ID",
+            "in": "path",
+            "description": "The Workday ID of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. A successful response can return no matched data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/feedbackBadgeDetail_9eab868ca81410001402525d054211f7"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: Missing or invalid credentials. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User has insufficient permissions. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found. (https://community.workday.com/rest/error-messages)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VALIDATION_ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        },
+        "x-workday-internal-try-enabled": "false",
+        "x-workday-operation-id": "9eab868ca81410001407d585db1811fa",
+        "x-workday-secured-by-business-process-types": [
+          "Give Feedback"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "INSTANCE_MODEL_REFERENCE": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^(([0-9a-f]{32})|(\\S+=\\S+))$",
+            "type": "string",
+            "description": "Workday Id or Reference Id of the instance."
+          },
+          "descriptor": {
+            "type": "string",
+            "description": "The display name of the instance",
+            "readOnly": true
+          },
+          "href": {
+            "type": "string",
+            "description": "A link to the instance",
+            "readOnly": true
+          }
+        }
+      },
+      "ERROR_MODEL_REFERENCE": {
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "A description of the error"
+          },
+          "code": {
+            "type": "string",
+            "description": "The code that corresponds to the error message. Use the error code to drive programmatic error-handling behavior. Don't use error message strings for this purpose because they are subject to change"
+          },
+          "field": {
+            "type": "string",
+            "description": "The field related to the error"
+          },
+          "path": {
+            "type": "string",
+            "description": "The path of the field related to the error"
+          },
+          "severity": {
+            "type": "string",
+            "description": "Severity of the validation (e.g. Critical, Warning)."
+          },
+          "internalMessage": {
+            "type": "string",
+            "description": "Internal message providing additional context for the validation (e.g. representation content validation details)."
+          }
+        }
+      },
+      "VALIDATION_ERROR_MODEL_REFERENCE": {
+        "allOf": [
+          {
+            "required": [
+              "error"
+            ],
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "description": "A description of the error"
+              },
+              "errors": {
+                "type": "array",
+                "description": "An array of validation errors",
+                "items": {
+                  "$ref": "#/components/schemas/ERROR_MODEL_REFERENCE"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FACETS_MODEL_REFERENCE": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "descriptor": {
+              "type": "string",
+              "description": "A description of the facet"
+            },
+            "facetParameter": {
+              "type": "string",
+              "description": "The alias used to select the facet"
+            },
+            "values": {
+              "type": "array",
+              "description": "the facet values",
+              "items": {
+                "required": [
+                  "id"
+                ],
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "description": "The number of instances returned by this facet",
+                    "format": "int32"
+                  },
+                  "id": {
+                    "pattern": "^(([0-9a-f]{32})|(\\S+=\\S+))$",
+                    "type": "string",
+                    "description": "Workday Id or Reference Id of the instance."
+                  },
+                  "descriptor": {
+                    "type": "string",
+                    "description": "A description of the facet"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "A link to the instance",
+                    "readOnly": true
+                  }
+                }
+              }
+            }
+          },
+          "description": "This object represents the possible facets for this resource",
+          "readOnly": true
+        }
+      },
+      "MULTIPLE_INSTANCE_MODEL_REFERENCE": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+            }
+          }
+        }
+      },
+      "location_d6235be431f940598806053af7ba94ef": {
+        "description": "Contains the location for the \\~worker\\~.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "primarySupervisoryOrganization_851e1342d4c2489c9680fb2a899227ca": {
+        "description": "The \\~supervisory organization\\~ for the \\~worker's\\~ primary position, if the \\~supervisory organization\\~ is viewable by everyone.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "workerProfile_c0a0dce56eb142d39dbffeb505becf7a": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "dateOfBirth": {
+                "type": "string",
+                "description": "The birth date of the \\~worker\\~.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "supervisoryOrganizationsManaged": {
+                "type": "string",
+                "description": "All \\~supervisory organizations\\~, excluding inherited organizations, in which the \\~worker\\~ has a leadership role.",
+                "format": "url",
+                "readOnly": true,
+                "x-workday-type": "Multi-instance"
+              },
+              "businessTitle": {
+                "type": "string",
+                "description": "The business title for the \\~worker's\\~ primary position. If no business title is defined for a position, the position title is returned back.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "isManager": {
+                "type": "boolean",
+                "description": "Identifies if the \\~worker\\~ has a \\~manager\\~ role.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "primaryWorkEmail": {
+                "type": "string",
+                "description": "The primary work email address for the \\~worker\\~.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "location": {
+                "$ref": "#/components/schemas/location_d6235be431f940598806053af7ba94ef"
+              },
+              "primaryWorkPhone": {
+                "type": "string",
+                "description": "The primary work phone number for the \\~worker\\~ including the area code and \\~country\\~ code.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "primaryWorkAddressText": {
+                "type": "string",
+                "description": "Returns the primary work address for the \\~worker\\~, or from their default primary work location, full format on a single line.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "primarySupervisoryOrganization": {
+                "$ref": "#/components/schemas/primarySupervisoryOrganization_851e1342d4c2489c9680fb2a899227ca"
+              },
+              "yearsOfService": {
+                "type": "number",
+                "description": "The years of service for the \\~worker\\~.",
+                "format": "double",
+                "example": 99999999999.99,
+                "x-workday-type": "Numeric"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "href": {
+                "type": "string",
+                "description": "A link to the instance"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "primarySupervisoryOrganization_642d7497e69c48da946fc503f66d7da1": {
+        "description": "The \\~supervisory organization\\~ for the \\~worker's\\~ primary position, if the \\~supervisory organization\\~ is viewable by everyone.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "workerSummary_a489aef739484c13a59e6d502a9e7b68": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "isManager": {
+                "type": "boolean",
+                "description": "Identifies if the \\~worker\\~ has a \\~manager\\~ role.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "primaryWorkPhone": {
+                "type": "string",
+                "description": "The primary work phone number for the \\~worker\\~ including the area code and \\~country\\~ code.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "primaryWorkEmail": {
+                "type": "string",
+                "description": "The primary work email address for the \\~worker\\~.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "primarySupervisoryOrganization": {
+                "$ref": "#/components/schemas/primarySupervisoryOrganization_642d7497e69c48da946fc503f66d7da1"
+              },
+              "businessTitle": {
+                "type": "string",
+                "description": "The business title for the \\~worker's\\~ primary position. If no business title is defined for a position, the position title is returned back.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "href": {
+                "type": "string",
+                "description": "A link to the instance"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "badge_96569dfd073710000ff9930f04160079": {
+        "description": "The feedback badge included with the feedback given to the subject.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "relatesTo_cc3d9bf215cb1000068e7f9acd9000ee": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/gigTalentTag_cc3d9bf215cb1000068d845144d900ec"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id for Flex Team (Derived)"
+              }
+            }
+          }
+        ]
+      },
+      "giveFeedbackDetail_96569dfd073710000ff99236d1850077": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "hiddenFromWorker": {
+                "type": "boolean",
+                "description": "Yes if the feedback is confidential between the feedback provider and the manager. Workers don't see confidential feedback.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "feedbackGivenDate": {
+                "type": "string",
+                "description": "Date of feedback provided.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "badge": {
+                "$ref": "#/components/schemas/badge_96569dfd073710000ff9930f04160079"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Returns the comment text for anytime feedback.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "relatesTo": {
+                "type": "array",
+                "description": "The \\~gig\\~ opening related to the feedback.",
+                "items": {
+                  "$ref": "#/components/schemas/relatesTo_cc3d9bf215cb1000068e7f9acd9000ee"
+                },
+                "x-workday-type": "Multi-instance"
+              },
+              "hiddenFromManager": {
+                "type": "boolean",
+                "description": "Yes if the feedback is private between the feedback provider and the worker. Private feedback isn't shared with managers.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "showFeedbackProviderName": {
+                "type": "boolean",
+                "description": "Is the name of the feedback provider's name displayed?",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "href": {
+                "type": "string",
+                "description": "A link to the instance"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "badge_a6ab9069588610002b8c0c8217af0012": {
+        "description": "The feedback badge included with the feedback given to the subject.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "fromWorker_a6ab9069588610002b8c0bb4e5d80010": {
+        "description": "The worker that provided the feedback provider.  Only returned if the request asked to know the identity of the person responding.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "toWorker_a6ab9069588610002b8c0c1d3d610011": {
+        "description": "The worker this feedback is about.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "relatesTo_9070a6cc7f84100027771d9a40f00120": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/gigTalentTag_cc3d9bf215cb1000068d845144d900ec"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id for Flex Team (Derived)"
+              }
+            }
+          }
+        ]
+      },
+      "event_e51f91610b6a100025350c013cd8000e": {
+        "description": "The event associated with this feedback.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "feedbackSummary_a6ab9069588610002b8c0b4f60a8000f": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "badge": {
+                "$ref": "#/components/schemas/badge_a6ab9069588610002b8c0c8217af0012"
+              },
+              "feedbackGivenDate": {
+                "type": "string",
+                "description": "Date of feedback provided.",
+                "format": "date",
+                "x-workday-type": "Date"
+              },
+              "hiddenFromManager": {
+                "type": "boolean",
+                "description": "Yes if the feedback is private between the feedback provider and the worker. Private feedback isn't shared with managers.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "comment": {
+                "type": "string",
+                "description": "Returns the comment text for anytime feedback.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Rich Text"
+              },
+              "fromWorker": {
+                "$ref": "#/components/schemas/fromWorker_a6ab9069588610002b8c0bb4e5d80010"
+              },
+              "toWorker": {
+                "$ref": "#/components/schemas/toWorker_a6ab9069588610002b8c0c1d3d610011"
+              },
+              "relatesTo": {
+                "type": "array",
+                "description": "The \\~gig\\~ opening related to the feedback.",
+                "items": {
+                  "$ref": "#/components/schemas/relatesTo_9070a6cc7f84100027771d9a40f00120"
+                },
+                "x-workday-type": "Multi-instance"
+              },
+              "showFeedbackProviderName": {
+                "type": "boolean",
+                "description": "Is the name of the feedback provider's name displayed?",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "event": {
+                "$ref": "#/components/schemas/event_e51f91610b6a100025350c013cd8000e"
+              },
+              "hiddenFromWorker": {
+                "type": "boolean",
+                "description": "Yes if the feedback is confidential between the feedback provider and the manager. Workers don't see confidential feedback.",
+                "example": true,
+                "x-workday-type": "Boolean"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "href": {
+                "type": "string",
+                "description": "A link to the instance"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      },
+      "feedbackBadgeIcon_d4d355b2d3db100020b8608b75250016": {
+        "description": "Returns Icon for Feedback Badge",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/INSTANCE_MODEL_REFERENCE"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "feedbackBadgeDetail_9eab868ca81410001402525d054211f7": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "feedbackBadgeID": {
+                "type": "string",
+                "description": "The Reference ID to use for lookups within our Workday Web Services. For supervisory organizations, this is also the 'Organization ID'",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of this feedback badge.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              },
+              "feedbackBadgeIcon": {
+                "$ref": "#/components/schemas/feedbackBadgeIcon_d4d355b2d3db100020b8608b75250016"
+              },
+              "workdayID": {
+                "maxLength": 36,
+                "type": "string",
+                "description": "Returns the Workday ID for a given object.",
+                "example": "Lorem ipsum dolor sit amet, cum choro singulis consectetuer ut, ubique iisque contentiones ex duo. Quo lorem etiam eu.",
+                "x-workday-type": "Text"
+              }
+            }
+          }
+        ]
+      },
+      "gigTalentTag_cc3d9bf215cb1000068d845144d900ec": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "descriptor": {
+                "type": "string",
+                "description": "The display name of the instance",
+                "example": "Lorem ipsum dolor sit ame"
+              },
+              "id": {
+                "type": "string",
+                "description": "Workday Id or Reference Id of the instance."
+              }
+            }
+          }
+        ]
+      }
+    },
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://<tenantAuthorizationHostname>",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
