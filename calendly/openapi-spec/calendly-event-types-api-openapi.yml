@@ -1,0 +1,376 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Event Types API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Event Types
+  description: Endpoints for listing, retrieving, and managing event types that define the kinds of meetings users can schedule.
+paths:
+  /event_types:
+    get:
+      operationId: listEventTypes
+      summary: List event types
+      description: Returns a paginated list of event types for the specified user or organization. Event types define the kinds of meetings that can be scheduled, including their duration, location, and availability.
+      tags:
+      - Event Types
+      parameters:
+      - name: user
+        in: query
+        description: The URI of the user whose event types to list. Required if organization is not specified.
+        schema:
+          type: string
+          format: uri
+      - name: organization
+        in: query
+        description: The URI of the organization whose event types to list. Required if user is not specified.
+        schema:
+          type: string
+          format: uri
+      - name: active
+        in: query
+        description: Filter by active status. When true, only active event types are returned.
+        schema:
+          type: boolean
+      - name: sort
+        in: query
+        description: Sort order for results. Use name:asc or name:desc.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved the list of event types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EventType'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /event_types/{uuid}:
+    get:
+      operationId: getEventType
+      summary: Get event type
+      description: Returns detailed information about a specific event type by its UUID, including its name, duration, scheduling URL, and configuration.
+      tags:
+      - Event Types
+      parameters:
+      - $ref: '#/components/parameters/EventTypeUuid'
+      responses:
+        '200':
+          description: Successfully retrieved the event type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/EventType'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /one_off_event_types:
+    post:
+      operationId: createOneOffEventType
+      summary: Create one-off event type
+      description: Creates a single-use event type that can be used for a one-time scheduling session. One-off event types are not listed on the users scheduling page.
+      tags:
+      - Event Types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - host
+              - duration
+              - date_setting
+              properties:
+                name:
+                  type: string
+                  description: The name of the one-off event type.
+                host:
+                  type: string
+                  format: uri
+                  description: The URI of the user who will host the event.
+                duration:
+                  type: integer
+                  description: The duration of the event in minutes.
+                  minimum: 1
+                date_setting:
+                  type: object
+                  description: Date range settings for the one-off event type.
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - date_range
+                    start_date:
+                      type: string
+                      format: date
+                    end_date:
+                      type: string
+                      format: date
+                location:
+                  type: object
+                  description: The location configuration for the event.
+      responses:
+        '201':
+          description: Successfully created the one-off event type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/EventType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    CustomQuestion:
+      type: object
+      description: A custom question displayed on the event type booking page.
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the custom question.
+        name:
+          type: string
+          description: The text of the question.
+        type:
+          type: string
+          enum:
+          - string
+          - text
+          - phone_number
+          - single_select
+          - multi_select
+          description: The type of input expected for the answer.
+        position:
+          type: integer
+          description: The display order of the question.
+        enabled:
+          type: boolean
+          description: Whether the question is currently enabled.
+        required:
+          type: boolean
+          description: Whether an answer is required.
+        answer_choices:
+          type: array
+          items:
+            type: string
+          description: The available answer choices for select-type questions.
+        include_other:
+          type: boolean
+          description: Whether an Other option is included in select-type questions.
+    EventType:
+      type: object
+      description: An event type defines a kind of meeting that can be scheduled, including its duration, location, and availability configuration.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the event type resource.
+        name:
+          type: string
+          description: The name of the event type.
+        active:
+          type: boolean
+          description: Whether the event type is currently active and available for scheduling.
+        booking_method:
+          type: string
+          enum:
+          - instant
+          - poll
+          description: The booking method for the event type.
+        slug:
+          type: string
+          description: The URL-friendly slug for the event type.
+        scheduling_url:
+          type: string
+          format: uri
+          description: The URL of the event types scheduling page.
+        duration:
+          type: integer
+          description: The default duration of the event in minutes.
+          minimum: 1
+        kind:
+          type: string
+          enum:
+          - solo
+          - group
+          description: Whether the event type is for solo or group meetings.
+        pooling_type:
+          type: string
+          enum:
+          - round_robin
+          - collective
+          description: For team event types, the pooling strategy for host assignment.
+        type:
+          type: string
+          enum:
+          - StandardEventType
+          - AdhocEventType
+          description: The type classification of the event type.
+        color:
+          type: string
+          description: The hex color code associated with the event type.
+        description_plain:
+          type: string
+          description: The plain text description of the event type.
+        description_html:
+          type: string
+          description: The HTML-formatted description of the event type.
+        internal_note:
+          type: string
+          description: An internal note visible only to the event host.
+        profile:
+          type: object
+          description: The profile associated with the event type.
+          properties:
+            type:
+              type: string
+              description: The profile type (User or Team).
+            name:
+              type: string
+              description: The profile name.
+            owner:
+              type: string
+              format: uri
+              description: The URI of the profile owner.
+        secret:
+          type: boolean
+          description: Whether the event type is hidden from the scheduling page.
+        deleted_at:
+          type: string
+          format: date-time
+          description: The timestamp when the event type was deleted, if applicable.
+        custom_questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomQuestion'
+          description: Custom questions displayed on the booking page.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the event type was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the event type was last updated.
+    Pagination:
+      type: object
+      description: Pagination information for paginated list responses.
+      properties:
+        count:
+          type: integer
+          description: The number of results in the current page.
+        next_page:
+          type: string
+          format: uri
+          description: The URL of the next page of results, if available.
+        previous_page:
+          type: string
+          format: uri
+          description: The URL of the previous page of results, if available.
+        next_page_token:
+          type: string
+          description: The token to fetch the next page of results.
+        previous_page_token:
+          type: string
+          description: The token to fetch the previous page of results.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    Count:
+      name: count
+      in: query
+      description: The number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    EventTypeUuid:
+      name: uuid
+      in: path
+      required: true
+      description: The UUID of the event type.
+      schema:
+        type: string
+    PageToken:
+      name: page_token
+      in: query
+      description: A token for fetching the next page of results from a previous paginated response.
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs

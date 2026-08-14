@@ -1,0 +1,330 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Routing Forms API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Routing Forms
+  description: Endpoints for listing and retrieving routing forms and their submissions.
+paths:
+  /routing_forms:
+    get:
+      operationId: listRoutingForms
+      summary: List routing forms
+      description: Returns a paginated list of routing forms for the specified organization. Routing forms are questionnaires that direct invitees to the appropriate scheduling page based on their responses.
+      tags:
+      - Routing Forms
+      parameters:
+      - name: organization
+        in: query
+        required: true
+        description: The URI of the organization whose routing forms to list.
+        schema:
+          type: string
+          format: uri
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved routing forms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoutingForm'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /routing_forms/{uuid}:
+    get:
+      operationId: getRoutingForm
+      summary: Get routing form
+      description: Returns detailed information about a specific routing form, including its questions and routing rules.
+      tags:
+      - Routing Forms
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the routing form.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved the routing form
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/RoutingForm'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /routing_form_submissions:
+    get:
+      operationId: listRoutingFormSubmissions
+      summary: List routing form submissions
+      description: Returns a paginated list of submissions for a specific routing form, including the answers provided by each submitter.
+      tags:
+      - Routing Forms
+      parameters:
+      - name: routing_form
+        in: query
+        required: true
+        description: The URI of the routing form whose submissions to list.
+        schema:
+          type: string
+          format: uri
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved routing form submissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoutingFormSubmission'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /routing_form_submissions/{uuid}:
+    get:
+      operationId: getRoutingFormSubmission
+      summary: Get routing form submission
+      description: Returns detailed information about a specific routing form submission.
+      tags:
+      - Routing Forms
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the routing form submission.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved the routing form submission
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/RoutingFormSubmission'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    RoutingForm:
+      type: object
+      description: A routing form is a questionnaire that directs invitees to the appropriate scheduling page based on their responses.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the routing form resource.
+        name:
+          type: string
+          description: The name of the routing form.
+        organization:
+          type: string
+          format: uri
+          description: The URI of the organization that owns the routing form.
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: The UUID of the question.
+              name:
+                type: string
+                description: The text of the question.
+              type:
+                type: string
+                description: The type of question.
+              required:
+                type: boolean
+                description: Whether an answer is required.
+              answer_choices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    answer_choice_id:
+                      type: string
+                      description: The ID of the answer choice.
+                    label:
+                      type: string
+                      description: The display label.
+                description: The available answer choices.
+          description: The questions in the routing form.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the routing form was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the routing form was last updated.
+    Pagination:
+      type: object
+      description: Pagination information for paginated list responses.
+      properties:
+        count:
+          type: integer
+          description: The number of results in the current page.
+        next_page:
+          type: string
+          format: uri
+          description: The URL of the next page of results, if available.
+        previous_page:
+          type: string
+          format: uri
+          description: The URL of the previous page of results, if available.
+        next_page_token:
+          type: string
+          description: The token to fetch the next page of results.
+        previous_page_token:
+          type: string
+          description: The token to fetch the previous page of results.
+    RoutingFormSubmission:
+      type: object
+      description: A submission to a routing form, capturing the answers provided by a respondent.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the routing form submission resource.
+        routing_form:
+          type: string
+          format: uri
+          description: The URI of the routing form that was submitted.
+        questions_and_answers:
+          type: array
+          items:
+            type: object
+            properties:
+              question_uuid:
+                type: string
+                description: The UUID of the question.
+              question:
+                type: string
+                description: The text of the question.
+              answer:
+                type: string
+                description: The respondents answer.
+          description: The questions and answers from the submission.
+        tracking:
+          type: object
+          description: UTM and tracking parameters captured at submission time.
+          properties:
+            utm_campaign:
+              type: string
+              description: The UTM campaign parameter.
+            utm_source:
+              type: string
+              description: The UTM source parameter.
+            utm_medium:
+              type: string
+              description: The UTM medium parameter.
+        submitter:
+          type: string
+          format: uri
+          description: The URI of the invitee created from this submission.
+        submitter_type:
+          type: string
+          description: The type of submitter.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the submission was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the submission was last updated.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  parameters:
+    Count:
+      name: count
+      in: query
+      description: The number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageToken:
+      name: page_token
+      in: query
+      description: A token for fetching the next page of results from a previous paginated response.
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs

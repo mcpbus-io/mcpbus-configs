@@ -1,0 +1,445 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Organizations API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Organizations
+  description: Endpoints for managing organization memberships, invitations, and organization-level settings.
+paths:
+  /organization_memberships:
+    get:
+      operationId: listOrganizationMemberships
+      summary: List organization memberships
+      description: Returns a paginated list of organization memberships. Each membership represents a users role and status within an organization.
+      tags:
+      - Organizations
+      parameters:
+      - name: organization
+        in: query
+        required: true
+        description: The URI of the organization whose memberships to list.
+        schema:
+          type: string
+          format: uri
+      - name: user
+        in: query
+        description: Filter by user URI.
+        schema:
+          type: string
+          format: uri
+      - name: email
+        in: query
+        description: Filter by user email address.
+        schema:
+          type: string
+          format: email
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved organization memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationMembership'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /organization_memberships/{uuid}:
+    get:
+      operationId: getOrganizationMembership
+      summary: Get organization membership
+      description: Returns detailed information about a specific organization membership, including the users role and status within the organization.
+      tags:
+      - Organizations
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the organization membership.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved the organization membership
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/OrganizationMembership'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteOrganizationMembership
+      summary: Remove organization membership
+      description: Removes a user from an organization by deleting their membership. This action cannot be undone.
+      tags:
+      - Organizations
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the organization membership to remove.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successfully removed the organization membership
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /organizations/{uuid}/invitations:
+    get:
+      operationId: listOrganizationInvitations
+      summary: List organization invitations
+      description: Returns a paginated list of pending invitations for the specified organization.
+      tags:
+      - Organizations
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the organization.
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: Filter invitations by status.
+        schema:
+          type: string
+          enum:
+          - pending
+          - accepted
+          - declined
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved organization invitations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationInvitation'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: inviteToOrganization
+      summary: Invite user to organization
+      description: Sends an invitation to a user to join the organization. The invitee will receive an email with instructions to accept the invitation.
+      tags:
+      - Organizations
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the organization.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The email address of the person to invite.
+      responses:
+        '201':
+          description: Successfully created the invitation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/OrganizationInvitation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /organizations/{org_uuid}/invitations/{invitation_uuid}:
+    get:
+      operationId: getOrganizationInvitation
+      summary: Get organization invitation
+      description: Returns detailed information about a specific organization invitation.
+      tags:
+      - Organizations
+      parameters:
+      - name: org_uuid
+        in: path
+        required: true
+        description: The UUID of the organization.
+        schema:
+          type: string
+      - name: invitation_uuid
+        in: path
+        required: true
+        description: The UUID of the invitation.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved the invitation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/OrganizationInvitation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: revokeOrganizationInvitation
+      summary: Revoke organization invitation
+      description: Revokes a pending organization invitation. The invitee will no longer be able to accept the invitation.
+      tags:
+      - Organizations
+      parameters:
+      - name: org_uuid
+        in: path
+        required: true
+        description: The UUID of the organization.
+        schema:
+          type: string
+      - name: invitation_uuid
+        in: path
+        required: true
+        description: The UUID of the invitation to revoke.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successfully revoked the invitation
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    OrganizationInvitation:
+      type: object
+      description: An invitation for a user to join a Calendly organization.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the invitation resource.
+        email:
+          type: string
+          format: email
+          description: The email address the invitation was sent to.
+        status:
+          type: string
+          enum:
+          - pending
+          - accepted
+          - declined
+          description: The current status of the invitation.
+        organization:
+          type: string
+          format: uri
+          description: The URI of the organization.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the invitation was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the invitation was last updated.
+        last_sent_at:
+          type: string
+          format: date-time
+          description: The timestamp when the invitation was last sent.
+    OrganizationMembership:
+      type: object
+      description: A membership record representing a users role and status within a Calendly organization.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the organization membership resource.
+        role:
+          type: string
+          enum:
+          - user
+          - admin
+          - owner
+          description: The users role within the organization.
+        user:
+          $ref: '#/components/schemas/User'
+        organization:
+          type: string
+          format: uri
+          description: The URI of the organization.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the membership was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the membership was last updated.
+    Pagination:
+      type: object
+      description: Pagination information for paginated list responses.
+      properties:
+        count:
+          type: integer
+          description: The number of results in the current page.
+        next_page:
+          type: string
+          format: uri
+          description: The URL of the next page of results, if available.
+        previous_page:
+          type: string
+          format: uri
+          description: The URL of the previous page of results, if available.
+        next_page_token:
+          type: string
+          description: The token to fetch the next page of results.
+        previous_page_token:
+          type: string
+          description: The token to fetch the previous page of results.
+    User:
+      type: object
+      description: A Calendly user account with scheduling and organization information.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the user resource.
+        name:
+          type: string
+          description: The full name of the user.
+        slug:
+          type: string
+          description: The URL-friendly slug for the users scheduling page.
+        email:
+          type: string
+          format: email
+          description: The email address of the user.
+        scheduling_url:
+          type: string
+          format: uri
+          description: The URL of the users Calendly scheduling page.
+        timezone:
+          type: string
+          description: The IANA timezone of the user.
+        avatar_url:
+          type: string
+          format: uri
+          description: The URL of the users avatar image.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the user was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the user was last updated.
+        current_organization:
+          type: string
+          format: uri
+          description: The URI of the users current organization.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  parameters:
+    Count:
+      name: count
+      in: query
+      description: The number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageToken:
+      name: page_token
+      in: query
+      description: A token for fetching the next page of results from a previous paginated response.
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs

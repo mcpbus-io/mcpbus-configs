@@ -1,0 +1,323 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Availability API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Availability
+  description: Endpoints for viewing available times for event types and managing user availability schedules.
+paths:
+  /event_type_available_times:
+    get:
+      operationId: listEventTypeAvailableTimes
+      summary: List event type available times
+      description: Returns a list of available time slots for a specific event type within a given date range. This endpoint is used to display bookable times to potential invitees.
+      tags:
+      - Availability
+      parameters:
+      - name: event_type
+        in: query
+        required: true
+        description: The URI of the event type to check availability for.
+        schema:
+          type: string
+          format: uri
+      - name: start_time
+        in: query
+        required: true
+        description: The start of the time range to check, in UTC format.
+        schema:
+          type: string
+          format: date-time
+      - name: end_time
+        in: query
+        required: true
+        description: The end of the time range to check, in UTC format.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Successfully retrieved available times
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AvailableTime'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /user_busy_times:
+    get:
+      operationId: listUserBusyTimes
+      summary: List user busy times
+      description: Returns a list of time periods during which a user is busy, based on their connected calendars. Useful for checking a users availability before scheduling.
+      tags:
+      - Availability
+      parameters:
+      - name: user
+        in: query
+        required: true
+        description: The URI of the user whose busy times to retrieve.
+        schema:
+          type: string
+          format: uri
+      - name: start_time
+        in: query
+        required: true
+        description: The start of the time range to check, in UTC format.
+        schema:
+          type: string
+          format: date-time
+      - name: end_time
+        in: query
+        required: true
+        description: The end of the time range to check, in UTC format.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Successfully retrieved busy times
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BusyTime'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /user_availability_schedules:
+    get:
+      operationId: listUserAvailabilitySchedules
+      summary: List user availability schedules
+      description: Returns a list of availability schedules for a specific user. Availability schedules define the recurring time windows when a user is available for meetings.
+      tags:
+      - Availability
+      parameters:
+      - name: user
+        in: query
+        required: true
+        description: The URI of the user whose availability schedules to retrieve.
+        schema:
+          type: string
+          format: uri
+      responses:
+        '200':
+          description: Successfully retrieved availability schedules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AvailabilitySchedule'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /user_availability_schedules/{uuid}:
+    get:
+      operationId: getUserAvailabilitySchedule
+      summary: Get user availability schedule
+      description: Returns a specific availability schedule by its UUID, including the timezone and rules that define available time windows.
+      tags:
+      - Availability
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The UUID of the availability schedule.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved the availability schedule
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/AvailabilitySchedule'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    AvailableTime:
+      type: object
+      description: An available time slot for an event type that can be booked by an invitee.
+      properties:
+        status:
+          type: string
+          enum:
+          - available
+          description: The status of the time slot.
+        invitees_remaining:
+          type: integer
+          description: The number of remaining spots for group events.
+        start_time:
+          type: string
+          format: date-time
+          description: The start time of the available slot in UTC.
+        scheduling_url:
+          type: string
+          format: uri
+          description: The URL to schedule at this specific time.
+    AvailabilitySchedule:
+      type: object
+      description: An availability schedule defining recurring time windows when a user is available for meetings.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the availability schedule resource.
+        name:
+          type: string
+          description: The name of the availability schedule.
+        default:
+          type: boolean
+          description: Whether this is the users default availability schedule.
+        timezone:
+          type: string
+          description: The IANA timezone for the schedule.
+        rules:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - wday
+                - date
+                description: The type of rule (recurring weekday or specific date).
+              wday:
+                type: string
+                enum:
+                - sunday
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+                description: The day of the week for wday-type rules.
+              date:
+                type: string
+                format: date
+                description: The specific date for date-type rules.
+              intervals:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    from:
+                      type: string
+                      description: The start time of the interval (HH:MM format).
+                    to:
+                      type: string
+                      description: The end time of the interval (HH:MM format).
+                description: The time intervals during which the user is available.
+          description: The availability rules defining when the user is available.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+    BusyTime:
+      type: object
+      description: A time period during which a user is busy based on their connected calendars.
+      properties:
+        type:
+          type: string
+          description: The type of busy time (e.g., calendly or external).
+        start_time:
+          type: string
+          format: date-time
+          description: The start of the busy period in UTC.
+        end_time:
+          type: string
+          format: date-time
+          description: The end of the busy period in UTC.
+        buffered_start_time:
+          type: string
+          format: date-time
+          description: The start time including buffer periods.
+        buffered_end_time:
+          type: string
+          format: date-time
+          description: The end time including buffer periods.
+        event:
+          type: object
+          description: Details about the event causing the busy time.
+          properties:
+            uri:
+              type: string
+              format: uri
+              description: The URI of the event.
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs

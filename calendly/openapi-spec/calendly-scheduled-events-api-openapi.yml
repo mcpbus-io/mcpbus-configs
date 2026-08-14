@@ -1,0 +1,369 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Scheduled Events API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Scheduled Events
+  description: Endpoints for listing, retrieving, and canceling scheduled events (booked meetings).
+paths:
+  /scheduled_events:
+    get:
+      operationId: listScheduledEvents
+      summary: List scheduled events
+      description: Returns a paginated list of scheduled events for the specified user or organization. Scheduled events represent booked meetings with start and end times, locations, and associated invitees.
+      tags:
+      - Scheduled Events
+      parameters:
+      - name: user
+        in: query
+        description: The URI of the user whose scheduled events to list.
+        schema:
+          type: string
+          format: uri
+      - name: organization
+        in: query
+        description: The URI of the organization whose scheduled events to list.
+        schema:
+          type: string
+          format: uri
+      - name: invitee_email
+        in: query
+        description: Filter by invitee email address.
+        schema:
+          type: string
+          format: email
+      - name: status
+        in: query
+        description: Filter by event status.
+        schema:
+          type: string
+          enum:
+          - active
+          - canceled
+      - name: min_start_time
+        in: query
+        description: Only return events starting on or after this time, in UTC format.
+        schema:
+          type: string
+          format: date-time
+      - name: max_start_time
+        in: query
+        description: Only return events starting before this time, in UTC format.
+        schema:
+          type: string
+          format: date-time
+      - name: sort
+        in: query
+        description: Sort order for results. Use start_time:asc or start_time:desc.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved the list of scheduled events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScheduledEvent'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /scheduled_events/{uuid}:
+    get:
+      operationId: getScheduledEvent
+      summary: Get scheduled event
+      description: Returns detailed information about a specific scheduled event by its UUID, including start and end times, event type, location, and cancellation details if applicable.
+      tags:
+      - Scheduled Events
+      parameters:
+      - $ref: '#/components/parameters/ScheduledEventUuid'
+      responses:
+        '200':
+          description: Successfully retrieved the scheduled event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/ScheduledEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /scheduled_events/{uuid}/cancellation:
+    post:
+      operationId: cancelScheduledEvent
+      summary: Cancel scheduled event
+      description: Cancels a scheduled event. Optionally include a reason for the cancellation. This will trigger invitee.canceled webhook events for all subscribed endpoints.
+      tags:
+      - Scheduled Events
+      parameters:
+      - $ref: '#/components/parameters/ScheduledEventUuid'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: The reason for canceling the event.
+                  maxLength: 10000
+      responses:
+        '200':
+          description: Successfully canceled the scheduled event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/Cancellation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Cancellation:
+      type: object
+      description: Information about a canceled event or invitee, including who canceled and the reason.
+      properties:
+        canceled_by:
+          type: string
+          description: The name or identifier of who canceled the event.
+        reason:
+          type: string
+          description: The reason provided for the cancellation.
+        canceler_type:
+          type: string
+          enum:
+          - host
+          - invitee
+          description: Whether the host or invitee canceled.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the cancellation occurred.
+    Location:
+      type: object
+      description: The location configuration for a scheduled event, specifying where the meeting takes place.
+      properties:
+        type:
+          type: string
+          description: The type of location (e.g., physical, outbound_call, inbound_call, google_conference, zoom, microsoft_teams_conference, custom).
+        location:
+          type: string
+          description: The location details, such as an address or phone number.
+        join_url:
+          type: string
+          format: uri
+          description: The URL to join the meeting for virtual locations.
+        status:
+          type: string
+          description: The status of the conference link generation.
+        additional_info:
+          type: string
+          description: Additional information about the location.
+    Pagination:
+      type: object
+      description: Pagination information for paginated list responses.
+      properties:
+        count:
+          type: integer
+          description: The number of results in the current page.
+        next_page:
+          type: string
+          format: uri
+          description: The URL of the next page of results, if available.
+        previous_page:
+          type: string
+          format: uri
+          description: The URL of the previous page of results, if available.
+        next_page_token:
+          type: string
+          description: The token to fetch the next page of results.
+        previous_page_token:
+          type: string
+          description: The token to fetch the previous page of results.
+    ScheduledEvent:
+      type: object
+      description: A scheduled event represents a booked meeting with a specific start time, end time, location, and associated invitees.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the scheduled event resource.
+        name:
+          type: string
+          description: The name of the scheduled event.
+        status:
+          type: string
+          enum:
+          - active
+          - canceled
+          description: The current status of the scheduled event.
+        start_time:
+          type: string
+          format: date-time
+          description: The start time of the event in UTC.
+        end_time:
+          type: string
+          format: date-time
+          description: The end time of the event in UTC.
+        event_type:
+          type: string
+          format: uri
+          description: The URI of the event type this event was created from.
+        location:
+          $ref: '#/components/schemas/Location'
+        invitees_counter:
+          type: object
+          description: A count of invitees by status.
+          properties:
+            total:
+              type: integer
+              description: The total number of invitees.
+            active:
+              type: integer
+              description: The number of active invitees.
+            limit:
+              type: integer
+              description: The maximum number of invitees allowed.
+        cancellation:
+          $ref: '#/components/schemas/Cancellation'
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the event was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the event was last updated.
+        event_memberships:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                type: string
+                format: uri
+                description: The URI of the event member.
+              user_email:
+                type: string
+                format: email
+                description: The email of the event member.
+              user_name:
+                type: string
+                description: The name of the event member.
+          description: The list of users who are members (hosts) of this event.
+        event_guests:
+          type: array
+          items:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+                description: The email address of the guest.
+              created_at:
+                type: string
+                format: date-time
+                description: When the guest was added.
+              updated_at:
+                type: string
+                format: date-time
+                description: When the guest record was last updated.
+          description: Additional guests invited to the event.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    Count:
+      name: count
+      in: query
+      description: The number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageToken:
+      name: page_token
+      in: query
+      description: A token for fetching the next page of results from a previous paginated response.
+      schema:
+        type: string
+    ScheduledEventUuid:
+      name: uuid
+      in: path
+      required: true
+      description: The UUID of the scheduled event.
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs
