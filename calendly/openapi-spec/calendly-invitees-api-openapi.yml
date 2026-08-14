@@ -1,0 +1,407 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Invitees API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Invitees
+  description: Endpoints for listing, retrieving, and creating invitees on scheduled events.
+paths:
+  /scheduled_events/{event_uuid}/invitees:
+    get:
+      operationId: listEventInvitees
+      summary: List event invitees
+      description: Returns a paginated list of invitees for a specific scheduled event. Invitee data includes name, email, timezone, and answers to custom questions from the booking page.
+      tags:
+      - Invitees
+      parameters:
+      - name: event_uuid
+        in: path
+        required: true
+        description: The UUID of the scheduled event.
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: Filter by invitee status.
+        schema:
+          type: string
+          enum:
+          - active
+          - canceled
+      - name: sort
+        in: query
+        description: Sort order for results. Use created_at:asc or created_at:desc.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved the list of invitees
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invitee'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /scheduled_events/{event_uuid}/invitees/{invitee_uuid}:
+    get:
+      operationId: getEventInvitee
+      summary: Get event invitee
+      description: Returns detailed information about a specific invitee for a scheduled event, including their name, email, timezone, and answers to custom questions on the event booking page.
+      tags:
+      - Invitees
+      parameters:
+      - name: event_uuid
+        in: path
+        required: true
+        description: The UUID of the scheduled event.
+        schema:
+          type: string
+      - name: invitee_uuid
+        in: path
+        required: true
+        description: The UUID of the invitee.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved the invitee
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/Invitee'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /invitees:
+    post:
+      operationId: createEventInvitee
+      summary: Create event invitee
+      description: Creates a new invitee for a scheduled event, effectively booking a meeting on behalf of the invitee. This is the core endpoint of the Scheduling API, enabling programmatic event creation without redirects, iframes, or the Calendly-hosted UI. Requires a paid Calendly plan.
+      tags:
+      - Invitees
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - event_type
+              - start_time
+              - invitee
+              properties:
+                event_type:
+                  type: string
+                  format: uri
+                  description: The URI of the event type to book.
+                start_time:
+                  type: string
+                  format: date-time
+                  description: The start time for the event in UTC. Must correspond to a valid available time slot.
+                invitee:
+                  type: object
+                  required:
+                  - name
+                  - email
+                  properties:
+                    name:
+                      type: string
+                      description: The full name of the invitee.
+                    email:
+                      type: string
+                      format: email
+                      description: The email address of the invitee.
+                    timezone:
+                      type: string
+                      description: The IANA timezone of the invitee.
+                  description: The invitee details for the booking.
+                questions_and_answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question_uuid:
+                        type: string
+                        description: The UUID of the custom question.
+                      answer:
+                        type: string
+                        description: The answer to the custom question.
+                  description: Answers to custom questions on the event type booking page.
+      responses:
+        '201':
+          description: Successfully created the invitee and booked the event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/Invitee'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Cancellation:
+      type: object
+      description: Information about a canceled event or invitee, including who canceled and the reason.
+      properties:
+        canceled_by:
+          type: string
+          description: The name or identifier of who canceled the event.
+        reason:
+          type: string
+          description: The reason provided for the cancellation.
+        canceler_type:
+          type: string
+          enum:
+          - host
+          - invitee
+          description: Whether the host or invitee canceled.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the cancellation occurred.
+    Invitee:
+      type: object
+      description: An invitee is a person who has booked or been booked for a scheduled event, with their contact information and booking details.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the invitee resource.
+        email:
+          type: string
+          format: email
+          description: The email address of the invitee.
+        first_name:
+          type: string
+          description: The first name of the invitee.
+        last_name:
+          type: string
+          description: The last name of the invitee.
+        name:
+          type: string
+          description: The full name of the invitee.
+        status:
+          type: string
+          enum:
+          - active
+          - canceled
+          description: The status of the invitee.
+        timezone:
+          type: string
+          description: The IANA timezone of the invitee.
+        event:
+          type: string
+          format: uri
+          description: The URI of the associated scheduled event.
+        text_reminder_number:
+          type: string
+          description: The phone number for text reminders.
+        rescheduled:
+          type: boolean
+          description: Whether this invitee was rescheduled from a previous event.
+        old_invitee:
+          type: string
+          format: uri
+          description: The URI of the previous invitee if this was rescheduled.
+        new_invitee:
+          type: string
+          format: uri
+          description: The URI of the new invitee if this invitee was rescheduled.
+        cancel_url:
+          type: string
+          format: uri
+          description: The URL for the invitee to cancel the event.
+        reschedule_url:
+          type: string
+          format: uri
+          description: The URL for the invitee to reschedule the event.
+        routing_form_submission:
+          type: string
+          format: uri
+          description: The URI of the routing form submission that led to this booking.
+        cancellation:
+          $ref: '#/components/schemas/Cancellation'
+        payment:
+          type: object
+          description: Payment information if the event type requires payment.
+          properties:
+            external_id:
+              type: string
+              description: The external payment processor ID.
+            provider:
+              type: string
+              description: The payment provider name.
+            amount:
+              type: number
+              description: The payment amount.
+            currency:
+              type: string
+              description: The payment currency code.
+            terms:
+              type: string
+              description: The payment terms.
+            successful:
+              type: boolean
+              description: Whether the payment was successful.
+        questions_and_answers:
+          type: array
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                description: The text of the custom question.
+              answer:
+                type: string
+                description: The invitees answer to the question.
+              position:
+                type: integer
+                description: The display position of the question.
+          description: The invitees answers to custom questions on the booking page.
+        tracking:
+          type: object
+          description: UTM and tracking parameters captured at booking time.
+          properties:
+            utm_campaign:
+              type: string
+              description: The UTM campaign parameter.
+            utm_source:
+              type: string
+              description: The UTM source parameter.
+            utm_medium:
+              type: string
+              description: The UTM medium parameter.
+            utm_content:
+              type: string
+              description: The UTM content parameter.
+            utm_term:
+              type: string
+              description: The UTM term parameter.
+            salesforce_uuid:
+              type: string
+              description: The Salesforce UUID if applicable.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the invitee was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the invitee was last updated.
+    Pagination:
+      type: object
+      description: Pagination information for paginated list responses.
+      properties:
+        count:
+          type: integer
+          description: The number of results in the current page.
+        next_page:
+          type: string
+          format: uri
+          description: The URL of the next page of results, if available.
+        previous_page:
+          type: string
+          format: uri
+          description: The URL of the previous page of results, if available.
+        next_page_token:
+          type: string
+          description: The token to fetch the next page of results.
+        previous_page_token:
+          type: string
+          description: The token to fetch the previous page of results.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    Count:
+      name: count
+      in: query
+      description: The number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageToken:
+      name: page_token
+      in: query
+      description: A token for fetching the next page of results from a previous paginated response.
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs

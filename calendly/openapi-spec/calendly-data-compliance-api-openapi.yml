@@ -1,0 +1,92 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Data Compliance API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Data Compliance
+  description: Endpoints for handling data compliance requests such as deletion and retrieval of invitee data.
+paths:
+  /data_compliance/deletion/invitees:
+    post:
+      operationId: deleteInviteeData
+      summary: Delete invitee data
+      description: Submits a request to delete invitee data for data compliance purposes such as GDPR. The deletion is processed asynchronously.
+      tags:
+      - Data Compliance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - emails
+              properties:
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+                  description: The list of invitee email addresses to delete data for.
+      responses:
+        '202':
+          description: Deletion request accepted and will be processed
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  responses:
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs

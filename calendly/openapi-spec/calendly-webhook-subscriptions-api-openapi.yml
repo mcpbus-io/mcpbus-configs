@@ -1,0 +1,319 @@
+openapi: 3.1.0
+info:
+  title: Calendly Scheduling Activity Log Webhook Subscriptions API
+  description: The Calendly Scheduling API (v2) is a RESTful API that allows developers to programmatically manage scheduling workflows. It provides endpoints for managing users, organizations, event types, scheduled events, invitees, routing forms, availability schedules, and webhook subscriptions. The API uses JSON for request and response bodies, standard HTTP methods, and supports authentication via personal access tokens and OAuth 2.1. Developers can use it to create events on behalf of invitees, retrieve scheduling data, and integrate Calendly functionality directly into their applications.
+  version: 2.0.0
+  contact:
+    name: Calendly Developer Support
+    url: https://developer.calendly.com/
+  termsOfService: https://calendly.com/pages/terms
+servers:
+- url: https://api.calendly.com
+  description: Production Server
+security:
+- bearerAuth: []
+tags:
+- name: Webhook Subscriptions
+  description: Endpoints for creating, listing, retrieving, and deleting webhook subscriptions that receive real-time event notifications.
+paths:
+  /webhook_subscriptions:
+    get:
+      operationId: listWebhookSubscriptions
+      summary: List webhook subscriptions
+      description: Returns a paginated list of webhook subscriptions for the specified user or organization. Each subscription defines the events to listen for and the callback URL to notify.
+      tags:
+      - Webhook Subscriptions
+      parameters:
+      - name: user
+        in: query
+        description: The URI of the user whose webhook subscriptions to list.
+        schema:
+          type: string
+          format: uri
+      - name: organization
+        in: query
+        required: true
+        description: The URI of the organization whose webhook subscriptions to list.
+        schema:
+          type: string
+          format: uri
+      - name: scope
+        in: query
+        required: true
+        description: The scope of the webhook subscription. Use user for subscriptions scoped to a specific user, or organization for organization-wide subscriptions.
+        schema:
+          type: string
+          enum:
+          - user
+          - organization
+      - $ref: '#/components/parameters/Count'
+      - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully retrieved webhook subscriptions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WebhookSubscription'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: createWebhookSubscription
+      summary: Create webhook subscription
+      description: Creates a new webhook subscription to receive real-time notifications when scheduling events occur. You can subscribe to invitee.created, invitee.canceled, and routing_form_submission.created events.
+      tags:
+      - Webhook Subscriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - url
+              - events
+              - organization
+              - scope
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: The URL where webhook payloads will be delivered.
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - invitee.created
+                    - invitee.canceled
+                    - routing_form_submission.created
+                  description: The list of event types to subscribe to.
+                  minItems: 1
+                organization:
+                  type: string
+                  format: uri
+                  description: The URI of the organization for the subscription.
+                user:
+                  type: string
+                  format: uri
+                  description: The URI of the user for user-scoped subscriptions.
+                scope:
+                  type: string
+                  enum:
+                  - user
+                  - organization
+                  description: The scope of the webhook subscription.
+                signing_key:
+                  type: string
+                  description: A secret key used to sign webhook payloads for verification.
+      responses:
+        '201':
+          description: Successfully created the webhook subscription
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/WebhookSubscription'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /webhook_subscriptions/{uuid}:
+    get:
+      operationId: getWebhookSubscription
+      summary: Get webhook subscription
+      description: Returns detailed information about a specific webhook subscription by its UUID, including the callback URL, subscribed events, and scope.
+      tags:
+      - Webhook Subscriptions
+      parameters:
+      - $ref: '#/components/parameters/WebhookSubscriptionUuid'
+      responses:
+        '200':
+          description: Successfully retrieved the webhook subscription
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resource:
+                    $ref: '#/components/schemas/WebhookSubscription'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteWebhookSubscription
+      summary: Delete webhook subscription
+      description: Deletes a webhook subscription by its UUID. Once deleted, the subscription will no longer receive event notifications.
+      tags:
+      - Webhook Subscriptions
+      parameters:
+      - $ref: '#/components/parameters/WebhookSubscriptionUuid'
+      responses:
+        '204':
+          description: Successfully deleted the webhook subscription
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  responses:
+    Unauthorized:
+      description: Authentication failed. Verify that a valid access token is provided in the Authorization header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was invalid or malformed. Check the request body and parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found. Verify the UUID or URI is correct.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    Count:
+      name: count
+      in: query
+      description: The number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageToken:
+      name: page_token
+      in: query
+      description: A token for fetching the next page of results from a previous paginated response.
+      schema:
+        type: string
+    WebhookSubscriptionUuid:
+      name: uuid
+      in: path
+      required: true
+      description: The UUID of the webhook subscription.
+      schema:
+        type: string
+  schemas:
+    WebhookSubscription:
+      type: object
+      description: A webhook subscription that receives real-time notifications when scheduling events occur in Calendly.
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The canonical URI of the webhook subscription resource.
+        callback_url:
+          type: string
+          format: uri
+          description: The URL where webhook payloads are delivered.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the subscription was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp when the subscription was last updated.
+        retry_started_at:
+          type: string
+          format: date-time
+          description: The timestamp when retry attempts started, if applicable.
+        state:
+          type: string
+          enum:
+          - active
+          - disabled
+          description: The current state of the webhook subscription.
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+            - invitee.created
+            - invitee.canceled
+            - routing_form_submission.created
+          description: The list of event types this subscription listens for.
+        scope:
+          type: string
+          enum:
+          - user
+          - organization
+          description: The scope of the subscription.
+        organization:
+          type: string
+          format: uri
+          description: The URI of the associated organization.
+        user:
+          type: string
+          format: uri
+          description: The URI of the associated user for user-scoped subscriptions.
+        creator:
+          type: string
+          format: uri
+          description: The URI of the user who created the subscription.
+    Pagination:
+      type: object
+      description: Pagination information for paginated list responses.
+      properties:
+        count:
+          type: integer
+          description: The number of results in the current page.
+        next_page:
+          type: string
+          format: uri
+          description: The URL of the next page of results, if available.
+        previous_page:
+          type: string
+          format: uri
+          description: The URL of the previous page of results, if available.
+        next_page_token:
+          type: string
+          description: The token to fetch the next page of results.
+        previous_page_token:
+          type: string
+          description: The token to fetch the previous page of results.
+    Error:
+      type: object
+      description: An error response from the Calendly API.
+      properties:
+        title:
+          type: string
+          description: A short summary of the error.
+        message:
+          type: string
+          description: A detailed description of the error.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+                description: The parameter that caused the error.
+              message:
+                type: string
+                description: A description of what was wrong with the parameter.
+          description: Specific details about validation errors.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Personal access token or OAuth 2.1 access token. Include in the Authorization header as Bearer {token}.
+externalDocs:
+  description: Calendly API Documentation
+  url: https://developer.calendly.com/api-docs
