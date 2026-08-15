@@ -11,7 +11,7 @@ This config creates MCP-connector that combines Workday APIs:
   - Performance Management v2
   - Performance Enablement v4.1
 
-These APIs translate into names in generated TS/JS SDK:
+These APIs translate into namespaces in generated TS/JS SDK:
 
 - `workdayHrStaffing`
   - file: `./openapi-spec/staffing_oas3.json`
