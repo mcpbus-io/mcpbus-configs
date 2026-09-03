@@ -1,0 +1,181 @@
+openapi: 3.1.0
+info:
+  title: Gong Auditing API
+  description: >-
+    The Gong Auditing API enables retrieval of audit log data by type and time
+    range, providing visibility into user actions and system events for
+    compliance and security monitoring.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Audit Logs
+    description: Operations for retrieving audit log data
+paths:
+  /logs:
+    get:
+      operationId: retrieveAuditLogs
+      summary: Gong Retrieve audit logs by type and time range
+      description: >-
+        Retrieves audit log entries filtered by log type and time range.
+        Provides visibility into user actions, system events, and configuration
+        changes for compliance, security monitoring, and troubleshooting.
+        Results are paginated.
+      tags:
+        - Audit Logs
+      parameters:
+        - name: logType
+          in: query
+          required: true
+          description: >-
+            The type of audit log to retrieve (e.g., UserAction, SystemEvent,
+            ConfigChange).
+          schema:
+            type: string
+        - name: fromDateTime
+          in: query
+          required: true
+          description: >-
+            The start date and time for the log filter in ISO-8601 format.
+          schema:
+            type: string
+            format: date-time
+        - name: toDateTime
+          in: query
+          required: true
+          description: >-
+            The end date and time for the log filter in ISO-8601 format.
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          required: false
+          description: >-
+            A cursor for pagination. Pass the cursor from the previous response
+            to retrieve the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing audit log entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    AuditLogsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+              description: Total number of log entries matching the filter.
+            currentPageSize:
+              type: integer
+              description: Number of entries in the current page.
+            cursor:
+              type: string
+              description: Cursor for retrieving the next page.
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLogEntry'
+          description: List of audit log entries.
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the log entry.
+        logType:
+          type: string
+          description: The type of audit log.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event occurred.
+        userId:
+          type: string
+          description: >-
+            The Gong user ID of the user who performed the action (if
+            applicable).
+        userEmail:
+          type: string
+          format: email
+          description: Email of the user who performed the action.
+        action:
+          type: string
+          description: The action that was performed.
+        resourceType:
+          type: string
+          description: The type of resource affected.
+        resourceId:
+          type: string
+          description: The identifier of the resource affected.
+        details:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional details about the event.
+        ipAddress:
+          type: string
+          description: IP address from which the action was performed.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

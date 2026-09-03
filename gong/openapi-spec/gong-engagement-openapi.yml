@@ -1,0 +1,459 @@
+openapi: 3.1.0
+info:
+  title: Gong Engagement API
+  description: >-
+    The Gong Engagement API reports customer engagement events including content
+    sharing, content viewing, and custom actions, providing visibility into how
+    prospects interact with shared materials.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Digital Interactions
+    description: Operations for posting digital interaction data
+  - name: Engagement Events
+    description: Operations for reporting customer engagement events
+paths:
+  /customer-engagement/share:
+    put:
+      operationId: reportContentShareEvent
+      summary: Gong Report content share event
+      description: >-
+        Reports a content sharing event to Gong, tracking when a user shares
+        content (such as documents, presentations, or links) with a prospect or
+        customer.
+      tags:
+        - Engagement Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentShareEventRequest'
+      responses:
+        '200':
+          description: Content share event successfully reported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /customer-engagement/view:
+    put:
+      operationId: reportContentViewEvent
+      summary: Gong Report content view event
+      description: >-
+        Reports a content viewing event to Gong, tracking when a prospect or
+        customer views shared content such as documents, presentations, or
+        proposals.
+      tags:
+        - Engagement Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentViewEventRequest'
+      responses:
+        '200':
+          description: Content view event successfully reported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /customer-engagement/action:
+    put:
+      operationId: reportCustomActionEvent
+      summary: Gong Report custom action event
+      description: >-
+        Reports a custom engagement action event to Gong, tracking custom
+        interactions between users and prospects that are not covered by the
+        standard share and view events.
+      tags:
+        - Engagement Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomActionEventRequest'
+      responses:
+        '200':
+          description: Custom action event successfully reported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /digital-interactions:
+    post:
+      operationId: postDigitalInteraction
+      summary: Gong Post digital interaction
+      description: >-
+        Posts a digital interaction event to Gong, recording structured data
+        about digital communications such as emails, chat messages, or other
+        text-based interactions with customers.
+      tags:
+        - Digital Interactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigitalInteractionRequest'
+      responses:
+        '201':
+          description: Digital interaction successfully posted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigitalInteractionResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /integration-settings:
+    post:
+      operationId: configureIntegrationSettings
+      summary: Gong Configure integration settings
+      description: >-
+        Configures integration settings for customer engagement tracking,
+        specifying how engagement data should be processed and associated with
+        CRM records.
+      tags:
+        - Engagement Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationSettingsRequest'
+      responses:
+        '200':
+          description: Integration settings successfully configured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    ContentShareEventRequest:
+      type: object
+      required:
+        - contentTitle
+        - senderEmailAddress
+        - eventTimestamp
+      properties:
+        contentTitle:
+          type: string
+          description: Title of the content that was shared.
+        contentUrl:
+          type: string
+          format: uri
+          description: URL of the shared content.
+        senderEmailAddress:
+          type: string
+          format: email
+          description: Email of the user who shared the content.
+        recipientEmailAddresses:
+          type: array
+          items:
+            type: string
+            format: email
+          description: Email addresses of the recipients.
+        eventTimestamp:
+          type: string
+          format: date-time
+          description: When the sharing event occurred in ISO-8601 format.
+        contentType:
+          type: string
+          description: Type of content (e.g., Document, Presentation, Link).
+        customProperties:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom properties for the engagement event.
+        crmContext:
+          type: object
+          properties:
+            objectType:
+              type: string
+              description: CRM object type (e.g., Deal, Account).
+            objectId:
+              type: string
+              description: CRM object identifier.
+          description: CRM context for associating the event with CRM records.
+    ContentViewEventRequest:
+      type: object
+      required:
+        - contentTitle
+        - viewerEmailAddress
+        - eventTimestamp
+      properties:
+        contentTitle:
+          type: string
+          description: Title of the content that was viewed.
+        contentUrl:
+          type: string
+          format: uri
+          description: URL of the viewed content.
+        viewerEmailAddress:
+          type: string
+          format: email
+          description: Email of the person who viewed the content.
+        eventTimestamp:
+          type: string
+          format: date-time
+          description: When the viewing event occurred in ISO-8601 format.
+        viewDuration:
+          type: number
+          description: Duration of the view in seconds.
+        pagesViewed:
+          type: integer
+          description: Number of pages viewed (for documents).
+        totalPages:
+          type: integer
+          description: Total number of pages in the content.
+        percentageViewed:
+          type: number
+          format: float
+          description: Percentage of content viewed (0-100).
+        customProperties:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom properties for the view event.
+    CustomActionEventRequest:
+      type: object
+      required:
+        - actionName
+        - actorEmailAddress
+        - eventTimestamp
+      properties:
+        actionName:
+          type: string
+          description: Name of the custom action.
+        actorEmailAddress:
+          type: string
+          format: email
+          description: Email of the person who performed the action.
+        targetEmailAddress:
+          type: string
+          format: email
+          description: Email of the target of the action.
+        eventTimestamp:
+          type: string
+          format: date-time
+          description: When the action occurred in ISO-8601 format.
+        actionDetails:
+          type: string
+          description: Additional details about the action.
+        customProperties:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom properties for the action event.
+    DigitalInteractionRequest:
+      type: object
+      required:
+        - interactionType
+        - participants
+        - timestamp
+      properties:
+        interactionType:
+          type: string
+          enum:
+            - Email
+            - Chat
+            - SMS
+            - SocialMedia
+            - Other
+          description: The type of digital interaction.
+        subject:
+          type: string
+          description: Subject of the interaction (e.g., email subject).
+        body:
+          type: string
+          description: Body content of the interaction.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the interaction occurred.
+        direction:
+          type: string
+          enum:
+            - Inbound
+            - Outbound
+          description: Direction of the interaction.
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              emailAddress:
+                type: string
+                format: email
+              name:
+                type: string
+              role:
+                type: string
+                enum:
+                  - Sender
+                  - Recipient
+                  - CC
+                  - BCC
+          description: Participants in the interaction.
+        workspaceId:
+          type: string
+          description: The workspace to associate the interaction with.
+        clientUniqueId:
+          type: string
+          description: Client-provided unique ID to prevent duplicate submissions.
+    DigitalInteractionResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        interactionId:
+          type: string
+          description: The Gong-assigned identifier for the digital interaction.
+    IntegrationSettingsRequest:
+      type: object
+      properties:
+        integrationName:
+          type: string
+          description: Name of the integration.
+        enableContentTracking:
+          type: boolean
+          description: Enable tracking of content sharing and viewing.
+        enableActionTracking:
+          type: boolean
+          description: Enable tracking of custom actions.
+        crmAssociationEnabled:
+          type: boolean
+          description: Enable automatic CRM record association.
+    BaseResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

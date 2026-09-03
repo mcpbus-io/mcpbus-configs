@@ -1,0 +1,608 @@
+openapi: 3.1.0
+info:
+  title: Gong CRM API
+  description: >-
+    The Gong CRM API enables integration with CRM systems by providing endpoints
+    to register integrations, upload CRM objects and schemas, map users and
+    fields, and manage associations between calls and CRM records.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: CRM Data
+    description: Operations for uploading and retrieving CRM data
+  - name: CRM Integration
+    description: Operations for registering and managing CRM integrations
+  - name: CRM Schema
+    description: Operations for managing CRM object schemas
+paths:
+  /crm/integrations:
+    put:
+      operationId: registerCrmIntegration
+      summary: Gong Register a CRM integration
+      description: >-
+        Registers a new CRM integration with Gong. A successful registration
+        enables uploading CRM data to Gong. Only one active integration per
+        integration type is allowed.
+      tags:
+        - CRM Integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrmIntegrationRegistrationRequest'
+      responses:
+        '200':
+          description: CRM integration successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmIntegrationRegistrationResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      operationId: getCrmIntegrations
+      summary: Gong Get CRM integration details
+      description: >-
+        Retrieves details about the currently registered CRM integrations for
+        the account.
+      tags:
+        - CRM Integration
+      responses:
+        '200':
+          description: Successful response containing CRM integration details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmIntegrationsResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteCrmIntegration
+      summary: Gong Delete a CRM integration
+      description: >-
+        Deletes a registered CRM integration and its associated data from Gong.
+      tags:
+        - CRM Integration
+      parameters:
+        - name: integrationId
+          in: query
+          required: true
+          description: The unique identifier of the CRM integration to delete.
+          schema:
+            type: string
+        - name: clientRequestId
+          in: query
+          required: false
+          description: A client-generated request ID for idempotency.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CRM integration successfully deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Integration not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /crm/entities:
+    post:
+      operationId: uploadCrmObjects
+      summary: Gong Upload CRM objects
+      description: >-
+        Uploads CRM objects (such as deals, accounts, contacts, or leads) to
+        Gong for association with call data. Objects are uploaded for a specific
+        integration and object type.
+      tags:
+        - CRM Data
+      parameters:
+        - name: integrationId
+          in: query
+          required: true
+          description: The unique identifier of the CRM integration.
+          schema:
+            type: string
+        - name: objectType
+          in: query
+          required: true
+          description: >-
+            The type of CRM object being uploaded (e.g., Deal, Account, Contact,
+            Lead).
+          schema:
+            type: string
+        - name: clientRequestId
+          in: query
+          required: false
+          description: A client-generated request ID for tracking.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrmEntitiesUploadRequest'
+      responses:
+        '200':
+          description: CRM objects successfully uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmEntitiesUploadResponse'
+        '400':
+          description: Bad request due to invalid parameters or data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /crm/objects:
+    get:
+      operationId: getCrmObjects
+      summary: Gong Get CRM objects
+      description: >-
+        Retrieves CRM objects that have been uploaded to Gong for a specific
+        integration and object type.
+      tags:
+        - CRM Data
+      parameters:
+        - name: integrationId
+          in: query
+          required: true
+          description: The unique identifier of the CRM integration.
+          schema:
+            type: string
+        - name: objectType
+          in: query
+          required: true
+          description: The type of CRM object to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing CRM objects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmObjectsResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /crm/entity-schema:
+    post:
+      operationId: uploadObjectSchema
+      summary: Gong Upload CRM object schema
+      description: >-
+        Uploads the schema definition for a CRM object type including field
+        definitions, labels, and data types. This defines the structure of CRM
+        objects that can be uploaded to Gong.
+      tags:
+        - CRM Schema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrmEntitySchemaUploadRequest'
+      responses:
+        '200':
+          description: Schema successfully uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Bad request due to invalid schema definition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      operationId: getSchemaFields
+      summary: Gong List schema fields
+      description: >-
+        Retrieves the schema fields defined for a specific CRM object type and
+        integration.
+      tags:
+        - CRM Schema
+      parameters:
+        - name: integrationId
+          in: query
+          required: true
+          description: The unique identifier of the CRM integration.
+          schema:
+            type: string
+        - name: objectType
+          in: query
+          required: true
+          description: The type of CRM object to get schema for.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing schema fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmEntitySchemaResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /crm/upload-status:
+    get:
+      operationId: getUploadStatus
+      summary: Gong Get upload request status
+      description: >-
+        Retrieves the status of a previous CRM data upload request using the
+        integration ID and client request ID.
+      tags:
+        - CRM Data
+      parameters:
+        - name: integrationId
+          in: query
+          required: true
+          description: The unique identifier of the CRM integration.
+          schema:
+            type: string
+        - name: clientRequestId
+          in: query
+          required: true
+          description: The client request ID from the original upload request.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing the upload status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadStatusResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Upload request not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    CrmIntegrationRegistrationRequest:
+      type: object
+      required:
+        - integrationId
+        - integrationType
+      properties:
+        integrationId:
+          type: string
+          description: Unique identifier for the CRM integration.
+        integrationType:
+          type: string
+          description: >-
+            The type of CRM system (e.g., Salesforce, HubSpot, Custom).
+        displayName:
+          type: string
+          description: Display name for the integration.
+        crmInstanceUrl:
+          type: string
+          format: uri
+          description: URL of the CRM instance.
+    CrmIntegrationRegistrationResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        integrationId:
+          type: string
+          description: The registered integration ID.
+    CrmIntegrationsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        integrations:
+          type: array
+          items:
+            type: object
+            properties:
+              integrationId:
+                type: string
+                description: Unique identifier for the integration.
+              integrationType:
+                type: string
+                description: The type of CRM system.
+              displayName:
+                type: string
+                description: Display name of the integration.
+              crmInstanceUrl:
+                type: string
+                format: uri
+                description: URL of the CRM instance.
+              status:
+                type: string
+                description: Status of the integration.
+          description: List of registered CRM integrations.
+    CrmEntitiesUploadRequest:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            type: object
+            properties:
+              objectId:
+                type: string
+                description: >-
+                  The unique identifier of the CRM object in the source CRM.
+              fields:
+                type: object
+                additionalProperties:
+                  type: string
+                description: >-
+                  Key-value pairs representing the fields of the CRM object.
+            required:
+              - objectId
+              - fields
+          description: List of CRM entity objects to upload.
+    CrmEntitiesUploadResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        clientRequestId:
+          type: string
+          description: The client-provided request ID for tracking.
+        status:
+          type: string
+          description: Status of the upload (e.g., Queued, Processing, Complete).
+    CrmObjectsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        objects:
+          type: array
+          items:
+            type: object
+            properties:
+              objectId:
+                type: string
+              objectType:
+                type: string
+              fields:
+                type: object
+                additionalProperties:
+                  type: string
+          description: List of CRM objects.
+    CrmEntitySchemaUploadRequest:
+      type: object
+      required:
+        - integrationId
+        - objectType
+        - fields
+      properties:
+        integrationId:
+          type: string
+          description: The CRM integration ID.
+        objectType:
+          type: string
+          description: The CRM object type (e.g., Deal, Account, Contact).
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              uniqueName:
+                type: string
+                description: Unique field name/key.
+              label:
+                type: string
+                description: Display label for the field.
+              type:
+                type: string
+                enum:
+                  - STRING
+                  - NUMBER
+                  - DATE
+                  - DATETIME
+                  - BOOLEAN
+                  - REFERENCE
+                  - CURRENCY
+                  - PICKLIST
+                description: Data type of the field.
+              isRequired:
+                type: boolean
+                description: Whether the field is required.
+              referenceObjectType:
+                type: string
+                description: >-
+                  For REFERENCE type fields, the object type being referenced.
+            required:
+              - uniqueName
+              - label
+              - type
+          description: List of field definitions for the CRM object schema.
+    CrmEntitySchemaResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              uniqueName:
+                type: string
+              label:
+                type: string
+              type:
+                type: string
+              isRequired:
+                type: boolean
+          description: List of schema field definitions.
+    UploadStatusResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        status:
+          type: string
+          enum:
+            - Queued
+            - Processing
+            - Complete
+            - Failed
+          description: Current status of the upload request.
+        entitiesProcessed:
+          type: integer
+          description: Number of entities processed so far.
+        entitiesFailed:
+          type: integer
+          description: Number of entities that failed processing.
+        errors:
+          type: array
+          items:
+            type: string
+          description: Error messages for failed entities.
+    BaseResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

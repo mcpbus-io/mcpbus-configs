@@ -1,0 +1,1076 @@
+openapi: 3.1.0
+info:
+  title: Gong Calls API
+  description: >-
+    The Gong Calls API provides endpoints to retrieve, add, and manage call data
+    including recordings, transcripts, and media files. It supports filtering
+    calls by date range, retrieving detailed call analytics, and uploading call
+    recordings from external telephony systems.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Calls
+    description: Operations for managing and retrieving call data
+  - name: Recordings
+    description: Operations for managing call recordings and media
+  - name: Transcripts
+    description: Operations for retrieving call transcripts
+paths:
+  /calls:
+    get:
+      operationId: listCalls
+      summary: Gong List calls
+      description: >-
+        Retrieves a list of calls that took place during a specified date range.
+        Results are paginated and can be filtered by workspace.
+      tags:
+        - Calls
+      parameters:
+        - name: fromDateTime
+          in: query
+          required: true
+          description: >-
+            The start date and time for the calls filter in ISO-8601 format
+            (e.g., 2021-01-01T00:00:00Z).
+          schema:
+            type: string
+            format: date-time
+        - name: toDateTime
+          in: query
+          required: true
+          description: >-
+            The end date and time for the calls filter in ISO-8601 format
+            (e.g., 2021-12-31T23:59:59Z).
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          required: false
+          description: >-
+            A cursor for pagination. Pass the cursor from the previous response
+            to retrieve the next page of results.
+          schema:
+            type: string
+        - name: workspaceId
+          in: query
+          required: false
+          description: Optional workspace identifier to filter calls by workspace.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing a list of calls.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: addCall
+      summary: Gong Add a new call
+      description: >-
+        Adds a new call record to Gong. Either provide a downloadMediaUrl in the
+        request body or use the returned callId in a follow-up request to
+        /v2/calls/{id}/media to upload the media file.
+      tags:
+        - Calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCallAddingRequest'
+      responses:
+        '201':
+          description: Call successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewCallAddingResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /calls/{id}:
+    get:
+      operationId: getCall
+      summary: Gong Retrieve a specific call
+      description: >-
+        Retrieves detailed information about a specific call identified by its
+        unique numeric identifier.
+      tags:
+        - Calls
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: >-
+            Gong's unique numeric identifier for the call (up to 20 digits).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing the call details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecificCallResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Call not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /calls/{id}/media:
+    put:
+      operationId: addCallRecording
+      summary: Gong Add call media recording
+      description: >-
+        Adds call media (audio or video recording) to a previously created call.
+        Gong accepts recordings in WAV, MP3, MP4, MKV, and FLAC formats up to
+        1.5GB in size.
+      tags:
+        - Recordings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The callId returned from the Add New Call request.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                mediaFile:
+                  type: string
+                  format: binary
+                  description: >-
+                    The audio or video file to upload. Supported formats include
+                    WAV, MP3, MP4, MKV, and FLAC. Maximum size is 1.5GB.
+              required:
+                - mediaFile
+      responses:
+        '200':
+          description: Media successfully uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewCallRecordingResponse'
+        '400':
+          description: Bad request due to invalid file format or size.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Call not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /calls/extensive:
+    post:
+      operationId: listCallsExtensive
+      summary: Gong Retrieve detailed call data
+      description: >-
+        Retrieves extensive call data including participants, topics, trackers,
+        comments, scorecards, and other analytics. Supports filtering by date
+        range, call IDs, or hosting users. Requires the scope
+        api:calls:read:extensive.
+      tags:
+        - Calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtensiveCallsRequest'
+      responses:
+        '200':
+          description: Successful response containing detailed call data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtensiveCallsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /calls/transcript:
+    post:
+      operationId: getCallTranscripts
+      summary: Gong Retrieve call transcripts
+      description: >-
+        Retrieves transcript data for calls matching the specified filter
+        criteria. Transcripts include speaker identification and timing
+        information.
+      tags:
+        - Transcripts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallTranscriptRequest'
+      responses:
+        '200':
+          description: Successful response containing call transcripts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallTranscriptsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /calls/manual-crm-associations:
+    get:
+      operationId: listManualCrmAssociations
+      summary: Gong List calls manually associated with CRM
+      description: >-
+        Retrieves a list of calls that were manually associated with CRM objects
+        by users. This endpoint is in beta phase. Results can be filtered by
+        association time.
+      tags:
+        - Calls
+      parameters:
+        - name: fromDateTime
+          in: query
+          required: false
+          description: >-
+            Filter by the time the manual association was created, in ISO-8601
+            format.
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          required: false
+          description: >-
+            A cursor for pagination. Pass the cursor from the previous response
+            to retrieve the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >-
+            Successful response containing a list of manually associated calls.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualAssociationResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /calls/users-access:
+    post:
+      operationId: retrieveUserCallAccess
+      summary: Gong Retrieve user call access
+      description: >-
+        Retrieves the list of users who have access to specified calls and their
+        access levels.
+      tags:
+        - Calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCallAccessRequest'
+      responses:
+        '200':
+          description: Successful response containing user call access data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCallAccessResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: giveUserCallAccess
+      summary: Gong Give user call access
+      description: >-
+        Grants specified users access to specified calls within the Gong
+        platform.
+      tags:
+        - Calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCallAccessUpdateRequest'
+      responses:
+        '200':
+          description: Call access successfully granted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: removeUserCallAccess
+      summary: Gong Remove user call access
+      description: >-
+        Removes specified users' access to specified calls within the Gong
+        platform.
+      tags:
+        - Calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCallAccessUpdateRequest'
+      responses:
+        '200':
+          description: Call access successfully removed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    CallsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+              description: Total number of call records matching the filter.
+            currentPageSize:
+              type: integer
+              description: Number of records in the current page.
+            currentPageNumber:
+              type: integer
+              description: The current page number.
+            cursor:
+              type: string
+              description: Cursor value for retrieving the next page of results.
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/Call'
+          description: List of call objects.
+    Call:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique numeric identifier for the call.
+        title:
+          type: string
+          description: The title or subject of the call.
+        url:
+          type: string
+          format: uri
+          description: URL to the call in the Gong web application.
+        scheduled:
+          type: string
+          format: date-time
+          description: Scheduled start time of the call in ISO-8601 format.
+        started:
+          type: string
+          format: date-time
+          description: Actual start time of the call in ISO-8601 format.
+        duration:
+          type: number
+          description: Duration of the call in seconds.
+        direction:
+          type: string
+          enum:
+            - Inbound
+            - Outbound
+            - Conference
+            - Unknown
+          description: The direction of the call.
+        scope:
+          type: string
+          enum:
+            - Internal
+            - External
+            - Unknown
+          description: Whether the call was internal or external.
+        media:
+          type: string
+          enum:
+            - Video
+            - Audio
+          description: The type of media recorded.
+        language:
+          type: string
+          description: The detected language of the call.
+        workspaceId:
+          type: string
+          description: The workspace identifier the call belongs to.
+        primaryUserId:
+          type: string
+          description: The Gong user ID of the primary user on the call.
+        parties:
+          type: array
+          items:
+            $ref: '#/components/schemas/CallParty'
+          description: The participants in the call.
+    CallParty:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the party.
+        emailAddress:
+          type: string
+          format: email
+          description: Email address of the party.
+        name:
+          type: string
+          description: Display name of the party.
+        title:
+          type: string
+          description: Job title of the party.
+        userId:
+          type: string
+          description: Gong user ID if the party is a Gong user.
+        speakerId:
+          type: string
+          description: Speaker identifier within the call.
+        affiliation:
+          type: string
+          enum:
+            - Internal
+            - External
+            - Unknown
+          description: Whether the party is internal or external.
+        phoneNumber:
+          type: string
+          description: Phone number of the party.
+        methods:
+          type: array
+          items:
+            type: string
+          description: Communication methods used by the party.
+    NewCallAddingRequest:
+      type: object
+      required:
+        - actualStart
+        - clientUniqueId
+        - direction
+        - parties
+        - primaryUser
+      properties:
+        actualStart:
+          type: string
+          format: date-time
+          description: The actual start time of the call in ISO-8601 format.
+        clientUniqueId:
+          type: string
+          description: >-
+            A unique identifier for the call provided by the client to prevent
+            duplicates.
+        direction:
+          type: string
+          enum:
+            - Inbound
+            - Outbound
+            - Conference
+            - Unknown
+          description: The direction of the call.
+        downloadMediaUrl:
+          type: string
+          format: uri
+          description: >-
+            Optional URL from which Gong can download the call recording media.
+            If not provided, use /v2/calls/{id}/media to upload.
+        duration:
+          type: number
+          description: Duration of the call in seconds.
+        languageCode:
+          type: string
+          description: Language code of the call for transcription.
+        meetingUrl:
+          type: string
+          format: uri
+          description: URL of the meeting (if applicable).
+        parties:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewCallParty'
+          description: List of call participants.
+        primaryUser:
+          type: string
+          description: Email address of the primary Gong user on the call.
+        purpose:
+          type: string
+          description: The purpose or subject of the call.
+        scheduledEnd:
+          type: string
+          format: date-time
+          description: The scheduled end time of the call.
+        scheduledStart:
+          type: string
+          format: date-time
+          description: The scheduled start time of the call.
+        title:
+          type: string
+          description: The title of the call.
+        workspaceId:
+          type: string
+          description: The workspace to associate the call with.
+    NewCallParty:
+      type: object
+      properties:
+        emailAddress:
+          type: string
+          format: email
+          description: Email address of the participant.
+        name:
+          type: string
+          description: Display name of the participant.
+        phoneNumber:
+          type: string
+          description: Phone number of the participant.
+        userId:
+          type: string
+          description: Gong user ID of the participant (if applicable).
+    NewCallAddingResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        callId:
+          type: string
+          description: >-
+            The Gong-assigned unique identifier for the newly created call.
+    NewCallRecordingResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        callId:
+          type: string
+          description: The call ID the media was attached to.
+    SpecificCallResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        call:
+          $ref: '#/components/schemas/Call'
+    ExtensiveCallsRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            fromDateTime:
+              type: string
+              format: date-time
+              description: Start of the date range filter.
+            toDateTime:
+              type: string
+              format: date-time
+              description: End of the date range filter.
+            callIds:
+              type: array
+              items:
+                type: string
+              description: Specific call IDs to retrieve.
+            workspaceId:
+              type: string
+              description: Filter by workspace.
+          description: Filter criteria for calls.
+        contentSelector:
+          type: object
+          properties:
+            context:
+              type: string
+              enum:
+                - None
+                - Extended
+                - Full
+              description: Level of context to include.
+            exposedFields:
+              type: object
+              properties:
+                collaboration:
+                  type: boolean
+                  description: Include collaboration data.
+                content:
+                  type: boolean
+                  description: Include content data.
+                currentSpeakerUserIds:
+                  type: boolean
+                  description: Include speaker user IDs.
+                media:
+                  type: boolean
+                  description: Include media URLs (requires api:calls:read:media-url scope).
+                parties:
+                  type: boolean
+                  description: Include party information.
+                publicComments:
+                  type: boolean
+                  description: Include public comments.
+              description: Fields to include in the response.
+          description: Selector for what content to include in the response.
+    ExtensiveCallsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+              description: Total number of matching records.
+            currentPageSize:
+              type: integer
+              description: Number of records in the current page.
+            cursor:
+              type: string
+              description: Cursor for retrieving the next page.
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailedCall'
+          description: List of detailed call objects.
+    DetailedCall:
+      allOf:
+        - $ref: '#/components/schemas/Call'
+        - type: object
+          properties:
+            content:
+              type: object
+              properties:
+                topics:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      duration:
+                        type: number
+                  description: Topics discussed during the call.
+                trackers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      count:
+                        type: integer
+                      occurrences:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            startTime:
+                              type: number
+                            speakerId:
+                              type: string
+                  description: Tracked keywords and phrases.
+                pointsOfInterest:
+                  type: object
+                  properties:
+                    actionItems:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          snippet:
+                            type: string
+                          speakerId:
+                            type: string
+                  description: Key points and action items.
+              description: Content analysis data.
+            collaboration:
+              type: object
+              properties:
+                publicComments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      commenterUserId:
+                        type: string
+                      comment:
+                        type: string
+                      audioStartTime:
+                        type: number
+                      posted:
+                        type: string
+                        format: date-time
+                  description: Public comments on the call.
+              description: Collaboration data.
+            interaction:
+              type: object
+              properties:
+                speakers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      userId:
+                        type: string
+                      talkTime:
+                        type: number
+                  description: Speaker statistics.
+                interactivity:
+                  type: number
+                  description: Interactivity score.
+              description: Interaction statistics.
+            media:
+              type: object
+              properties:
+                audioUrl:
+                  type: string
+                  format: uri
+                  description: URL for the audio recording.
+                videoUrl:
+                  type: string
+                  format: uri
+                  description: URL for the video recording.
+              description: Media URLs for the call recording.
+    CallTranscriptRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            callIds:
+              type: array
+              items:
+                type: string
+              description: List of call IDs to retrieve transcripts for.
+            fromDateTime:
+              type: string
+              format: date-time
+              description: Start of the date range filter.
+            toDateTime:
+              type: string
+              format: date-time
+              description: End of the date range filter.
+            workspaceId:
+              type: string
+              description: Filter by workspace.
+          description: Filter criteria for transcript retrieval.
+    CallTranscriptsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            currentPageSize:
+              type: integer
+            cursor:
+              type: string
+        callTranscripts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CallTranscript'
+          description: List of call transcripts.
+    CallTranscript:
+      type: object
+      properties:
+        callId:
+          type: string
+          description: The call ID this transcript belongs to.
+        transcript:
+          type: array
+          items:
+            type: object
+            properties:
+              speakerId:
+                type: string
+                description: ID of the speaker.
+              topic:
+                type: string
+                description: Topic of the segment.
+              sentences:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    start:
+                      type: number
+                      description: Start time in seconds.
+                    end:
+                      type: number
+                      description: End time in seconds.
+                    text:
+                      type: string
+                      description: The transcribed text.
+          description: Transcript segments with speaker and timing data.
+    ManualAssociationResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            currentPageSize:
+              type: integer
+            cursor:
+              type: string
+        calls:
+          type: array
+          items:
+            type: object
+            properties:
+              callId:
+                type: string
+                description: The call ID.
+              crmAssociations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    objectType:
+                      type: string
+                    objectId:
+                      type: string
+                    associatedAt:
+                      type: string
+                      format: date-time
+          description: Calls with their manual CRM associations.
+    UserCallAccessRequest:
+      type: object
+      properties:
+        callIds:
+          type: array
+          items:
+            type: string
+          description: List of call IDs to check access for.
+    UserCallAccessResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        callAccessDetails:
+          type: array
+          items:
+            type: object
+            properties:
+              callId:
+                type: string
+              userIds:
+                type: array
+                items:
+                  type: string
+          description: Access details for each call.
+    UserCallAccessUpdateRequest:
+      type: object
+      properties:
+        callIds:
+          type: array
+          items:
+            type: string
+          description: List of call IDs to update access for.
+        userIds:
+          type: array
+          items:
+            type: string
+          description: List of user IDs to grant or revoke access.
+    BaseResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

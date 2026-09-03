@@ -1,0 +1,599 @@
+openapi: 3.1.0
+info:
+  title: Gong Stats API
+  description: >-
+    The Gong Stats API provides access to activity metrics including user
+    interaction statistics, answered scorecards, talk ratios, and aggregated user
+    activity data for performance tracking and analytics.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Scorecards
+    description: Operations for retrieving scorecard statistics
+  - name: Statistics
+    description: Operations for retrieving activity and performance statistics
+paths:
+  /stats/activity/aggregated:
+    post:
+      operationId: retrieveAggregatedActivity
+      summary: Gong Retrieve aggregated activity
+      description: >-
+        Retrieves aggregated user activity statistics for a specified time
+        period. Returns metrics such as call counts, email counts, and other
+        activity measures grouped by user.
+      tags:
+        - Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AggregatedActivityRequest'
+      responses:
+        '200':
+          description: Successful response containing aggregated activity data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregatedActivityResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /stats/activity/day-by-day:
+    post:
+      operationId: retrieveDailyActivity
+      summary: Gong Retrieve daily activity
+      description: >-
+        Retrieves daily activity statistics broken down by date for specified
+        users and time period. Returns per-day metrics for calls, emails, and
+        other activities.
+      tags:
+        - Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyActivityRequest'
+      responses:
+        '200':
+          description: Successful response containing daily activity data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyActivityResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /stats/interaction:
+    post:
+      operationId: retrieveInteractionStats
+      summary: Gong Retrieve interaction statistics
+      description: >-
+        Retrieves interaction statistics for calls including talk ratios,
+        longest monologues, interactivity scores, and patience metrics for
+        specified users and time period.
+      tags:
+        - Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractionStatsRequest'
+      responses:
+        '200':
+          description: Successful response containing interaction statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractionStatsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /stats/scorecards:
+    post:
+      operationId: retrieveAnsweredScorecards
+      summary: Gong Retrieve answered scorecards
+      description: >-
+        Retrieves answered scorecard data for calls, including scores and
+        evaluations by reviewers for the specified time period and users.
+      tags:
+        - Scorecards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnsweredScorecardsRequest'
+      responses:
+        '200':
+          description: Successful response containing answered scorecard data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnsweredScorecardsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /coaching/metrics:
+    get:
+      operationId: listCoachingMetrics
+      summary: Gong List coaching metrics
+      description: >-
+        Retrieves coaching metrics for a specified manager, workspace, and time
+        period. Returns data about coaching activities and performance.
+      tags:
+        - Statistics
+      parameters:
+        - name: workspace-id
+          in: query
+          required: false
+          description: Filter by workspace ID.
+          schema:
+            type: string
+        - name: manager-id
+          in: query
+          required: false
+          description: Filter by manager's Gong user ID.
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          description: Start date for the metrics period in ISO-8601 format.
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          description: End date for the metrics period in ISO-8601 format.
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response containing coaching metrics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoachingMetricsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    AggregatedActivityRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            fromDateTime:
+              type: string
+              format: date-time
+              description: Start of the date range.
+            toDateTime:
+              type: string
+              format: date-time
+              description: End of the date range.
+            userIds:
+              type: array
+              items:
+                type: string
+              description: Filter by specific user IDs.
+          description: Filter criteria for activity retrieval.
+    AggregatedActivityResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            currentPageSize:
+              type: integer
+            cursor:
+              type: string
+        usersAggregatedActivity:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAggregatedActivity'
+          description: List of aggregated activity per user.
+    UserAggregatedActivity:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The Gong user ID.
+        callsAsHost:
+          type: integer
+          description: Number of calls where the user was the host.
+        callsAttended:
+          type: integer
+          description: Number of calls the user attended.
+        callsGaveComments:
+          type: integer
+          description: Number of calls where the user gave comments.
+        callsReceivedComments:
+          type: integer
+          description: Number of calls where the user received comments.
+        callsAccessedRecording:
+          type: integer
+          description: Number of calls where the user accessed the recording.
+        callsScored:
+          type: integer
+          description: Number of calls scored by the user.
+        ownCallsListenedTo:
+          type: integer
+          description: Number of own calls the user listened to.
+        othersCallsListenedTo:
+          type: integer
+          description: Number of others' calls the user listened to.
+    DailyActivityRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            fromDateTime:
+              type: string
+              format: date-time
+              description: Start of the date range.
+            toDateTime:
+              type: string
+              format: date-time
+              description: End of the date range.
+            userIds:
+              type: array
+              items:
+                type: string
+              description: Filter by specific user IDs.
+          description: Filter criteria for daily activity.
+    DailyActivityResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            currentPageSize:
+              type: integer
+            cursor:
+              type: string
+        usersDayByDayActivity:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: The Gong user ID.
+              dailyActivities:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: string
+                      format: date
+                      description: The activity date.
+                    callsAsHost:
+                      type: integer
+                    callsAttended:
+                      type: integer
+                    callsGaveComments:
+                      type: integer
+                    callsAccessedRecording:
+                      type: integer
+          description: Daily activity breakdown per user.
+    InteractionStatsRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            fromDateTime:
+              type: string
+              format: date-time
+              description: Start of the date range.
+            toDateTime:
+              type: string
+              format: date-time
+              description: End of the date range.
+            userIds:
+              type: array
+              items:
+                type: string
+              description: Filter by specific user IDs.
+          description: Filter criteria for interaction statistics.
+    InteractionStatsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            currentPageSize:
+              type: integer
+            cursor:
+              type: string
+        usersInteractionStats:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserInteractionStats'
+          description: Interaction statistics per user.
+    UserInteractionStats:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The Gong user ID.
+        callsCount:
+          type: integer
+          description: Total number of calls.
+        talkRatio:
+          type: number
+          format: float
+          description: Average talk ratio (percentage of time the user spoke).
+        longestMonologue:
+          type: number
+          description: Longest uninterrupted speaking duration in seconds.
+        interactivity:
+          type: number
+          format: float
+          description: Average interactivity score.
+        patience:
+          type: number
+          format: float
+          description: Average patience metric.
+        questionRate:
+          type: number
+          format: float
+          description: Average question rate per call.
+    AnsweredScorecardsRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            fromDateTime:
+              type: string
+              format: date-time
+              description: Start of the date range.
+            toDateTime:
+              type: string
+              format: date-time
+              description: End of the date range.
+            userIds:
+              type: array
+              items:
+                type: string
+              description: Filter by specific user IDs.
+            scorecardIds:
+              type: array
+              items:
+                type: string
+              description: Filter by specific scorecard IDs.
+          description: Filter criteria for answered scorecards.
+    AnsweredScorecardsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            currentPageSize:
+              type: integer
+            cursor:
+              type: string
+        answeredScorecards:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnsweredScorecard'
+          description: List of answered scorecards.
+    AnsweredScorecard:
+      type: object
+      properties:
+        callId:
+          type: string
+          description: The call ID the scorecard was answered for.
+        scorecardId:
+          type: string
+          description: The scorecard template ID.
+        scorecardName:
+          type: string
+          description: The name of the scorecard.
+        reviewedUserId:
+          type: string
+          description: The user ID of the person being reviewed.
+        reviewerUserId:
+          type: string
+          description: The user ID of the reviewer.
+        answeredAt:
+          type: string
+          format: date-time
+          description: When the scorecard was answered.
+        overallScore:
+          type: number
+          format: float
+          description: The overall score given.
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId:
+                type: string
+              questionText:
+                type: string
+              answer:
+                type: string
+              score:
+                type: number
+                format: float
+              isNotApplicable:
+                type: boolean
+          description: Individual question answers and scores.
+    CoachingMetricsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        metrics:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: The user ID.
+              callsListenedTo:
+                type: integer
+                description: Number of direct report calls listened to.
+              commentsGiven:
+                type: integer
+                description: Number of comments given to direct reports.
+              scorecardsFilled:
+                type: integer
+                description: Number of scorecards filled for direct reports.
+          description: Coaching metrics data.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.
