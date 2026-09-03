@@ -1,0 +1,594 @@
+openapi: 3.1.0
+info:
+  title: Gong Engage API
+  description: >-
+    The Gong Engage API lets you manage and customize Engage flows at scale,
+    with endpoints to list available flows and folders, assign or unassign
+    prospects, and override flow content to tailor messaging for specific
+    campaigns or workflows.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Flows
+    description: Operations for managing Engage flows
+  - name: Folders
+    description: Operations for managing flow folders
+  - name: Prospects
+    description: Operations for managing prospects in Engage flows
+paths:
+  /flows:
+    get:
+      operationId: listEngageFlows
+      summary: Gong List Engage flows
+      description: >-
+        Retrieves a list of all available Engage flows. Results can be filtered
+        by flow owner email and workspace, and are paginated.
+      tags:
+        - Flows
+      parameters:
+        - name: flowOwnerEmail
+          in: query
+          required: false
+          description: Filter flows by the owner's email address.
+          schema:
+            type: string
+            format: email
+        - name: cursor
+          in: query
+          required: false
+          description: >-
+            A cursor for pagination. Pass the cursor from the previous response
+            to retrieve the next page of results.
+          schema:
+            type: string
+        - name: workspaceId
+          in: query
+          required: false
+          description: Filter flows by workspace ID.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing a list of Engage flows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowsResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flows/folders:
+    get:
+      operationId: listFlowFolders
+      summary: Gong List flow folders
+      description: >-
+        Retrieves all company flow folders, plus personal flow folders and flow
+        folders shared with the specified user. Used to organize and categorize
+        Engage flows.
+      tags:
+        - Folders
+      parameters:
+        - name: userEmail
+          in: query
+          required: false
+          description: >-
+            Email of the user to include personal and shared folders for.
+          schema:
+            type: string
+            format: email
+        - name: workspaceId
+          in: query
+          required: false
+          description: Filter folders by workspace ID.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing flow folders.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowFoldersResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flows/prospects/assign:
+    post:
+      operationId: assignProspectsToFlow
+      summary: Gong Assign prospects to Engage flow
+      description: >-
+        Assigns one or more prospects to a specified Engage flow. Prospects will
+        begin receiving the flow's outreach sequence upon assignment.
+      tags:
+        - Prospects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignProspectsRequest'
+      responses:
+        '200':
+          description: Prospects successfully assigned to the flow.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignProspectsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flows/prospects/unassign:
+    post:
+      operationId: unassignProspectsFromFlow
+      summary: Gong Unassign prospects from Engage flow
+      description: >-
+        Removes one or more prospects from specified Engage flows. You can remove
+        prospects from up to 100 flows in a single request. The response returns
+        the flow instance IDs the prospect was successfully removed from.
+      tags:
+        - Prospects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnassignProspectsRequest'
+      responses:
+        '200':
+          description: Prospects successfully unassigned from the flow.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnassignProspectsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flows/prospects:
+    post:
+      operationId: listAssignedFlowsForProspects
+      summary: Gong List assigned flows for prospects
+      description: >-
+        Retrieves the list of Engage flows that specified prospects are currently
+        assigned to.
+      tags:
+        - Prospects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProspectsFlowsRequest'
+      responses:
+        '200':
+          description: >-
+            Successful response containing the flows assigned to each prospect.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProspectsFlowsResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flows/{flowId}/content-override:
+    put:
+      operationId: overrideFlowContent
+      summary: Gong Override flow content
+      description: >-
+        Overrides the content of specific steps in an Engage flow to tailor
+        messaging for specific campaigns or workflows. Allows customizing email
+        subjects, bodies, and other step content.
+      tags:
+        - Flows
+      parameters:
+        - name: flowId
+          in: path
+          required: true
+          description: The unique identifier of the Engage flow.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowContentOverrideRequest'
+      responses:
+        '200':
+          description: Flow content successfully overridden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flow not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    FlowsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+              description: Total number of flows.
+            currentPageSize:
+              type: integer
+              description: Number of records in the current page.
+            cursor:
+              type: string
+              description: Cursor for pagination.
+        flows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Flow'
+          description: List of Engage flow objects.
+    Flow:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the flow.
+        name:
+          type: string
+          description: Name of the flow.
+        ownerEmail:
+          type: string
+          format: email
+          description: Email of the flow owner.
+        folderId:
+          type: string
+          description: ID of the folder containing the flow.
+        status:
+          type: string
+          enum:
+            - Active
+            - Paused
+            - Archived
+            - Draft
+          description: Current status of the flow.
+        stepsCount:
+          type: integer
+          description: Number of steps in the flow.
+        prospectsCount:
+          type: integer
+          description: Number of prospects currently in the flow.
+        workspaceId:
+          type: string
+          description: The workspace the flow belongs to.
+        created:
+          type: string
+          format: date-time
+          description: When the flow was created.
+        modified:
+          type: string
+          format: date-time
+          description: When the flow was last modified.
+    FlowFoldersResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowFolder'
+          description: List of flow folders.
+    FlowFolder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the folder.
+        name:
+          type: string
+          description: Name of the folder.
+        type:
+          type: string
+          enum:
+            - Company
+            - Personal
+            - Shared
+          description: Type of the folder.
+        ownerEmail:
+          type: string
+          format: email
+          description: Email of the folder owner.
+        flowCount:
+          type: integer
+          description: Number of flows in the folder.
+    AssignProspectsRequest:
+      type: object
+      required:
+        - flowId
+        - prospects
+      properties:
+        flowId:
+          type: string
+          description: The ID of the Engage flow to assign prospects to.
+        prospects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prospect'
+          description: List of prospects to assign.
+        senderEmail:
+          type: string
+          format: email
+          description: The email address to send flow messages from.
+    Prospect:
+      type: object
+      required:
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          format: email
+          description: The prospect's email address.
+        firstName:
+          type: string
+          description: The prospect's first name.
+        lastName:
+          type: string
+          description: The prospect's last name.
+        company:
+          type: string
+          description: The prospect's company name.
+        title:
+          type: string
+          description: The prospect's job title.
+        phoneNumber:
+          type: string
+          description: The prospect's phone number.
+        linkedInUrl:
+          type: string
+          format: uri
+          description: The prospect's LinkedIn profile URL.
+        customFields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom field key-value pairs for the prospect.
+    AssignProspectsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        assignedProspects:
+          type: array
+          items:
+            type: object
+            properties:
+              emailAddress:
+                type: string
+                format: email
+              flowInstanceId:
+                type: string
+          description: >-
+            List of successfully assigned prospects with their flow instance IDs.
+        failedProspects:
+          type: array
+          items:
+            type: object
+            properties:
+              emailAddress:
+                type: string
+                format: email
+              reason:
+                type: string
+          description: List of prospects that failed to be assigned.
+    UnassignProspectsRequest:
+      type: object
+      required:
+        - flowInstanceIds
+      properties:
+        flowInstanceIds:
+          type: array
+          items:
+            type: string
+          description: >-
+            List of flow instance IDs to unassign. Up to 100 per request.
+    UnassignProspectsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        unassignedFlowInstanceIds:
+          type: array
+          items:
+            type: string
+          description: >-
+            Flow instance IDs the prospect was successfully removed from.
+    ProspectsFlowsRequest:
+      type: object
+      required:
+        - prospectEmails
+      properties:
+        prospectEmails:
+          type: array
+          items:
+            type: string
+            format: email
+          description: List of prospect email addresses to check.
+    ProspectsFlowsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        prospectsFlows:
+          type: array
+          items:
+            type: object
+            properties:
+              prospectEmail:
+                type: string
+                format: email
+              assignedFlows:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    flowId:
+                      type: string
+                    flowInstanceId:
+                      type: string
+                    flowName:
+                      type: string
+                    assignedAt:
+                      type: string
+                      format: date-time
+          description: Flow assignments for each prospect.
+    FlowContentOverrideRequest:
+      type: object
+      required:
+        - steps
+      properties:
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              stepIndex:
+                type: integer
+                description: The zero-based index of the step to override.
+              subject:
+                type: string
+                description: The overridden email subject line.
+              body:
+                type: string
+                description: The overridden email body content.
+            required:
+              - stepIndex
+          description: List of step content overrides.
+    BaseResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

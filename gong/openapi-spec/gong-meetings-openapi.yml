@@ -1,0 +1,387 @@
+openapi: 3.1.0
+info:
+  title: Gong Meetings API
+  description: >-
+    The Gong Meetings API provides endpoints to create, update, and delete Gong
+    meetings, as well as validate meeting integration status for scheduling and
+    managing meeting workflows.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Meetings
+    description: Operations for managing meetings
+paths:
+  /meetings:
+    post:
+      operationId: createMeeting
+      summary: Create a Gong meeting
+      description: >-
+        Creates a new meeting in Gong with the specified details including
+        participants, scheduling information, and meeting configuration.
+      tags:
+        - Meetings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMeetingRequest'
+      responses:
+        '201':
+          description: Meeting successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /meetings/{meetingId}:
+    put:
+      operationId: updateMeeting
+      summary: Update a Gong meeting
+      description: >-
+        Updates an existing Gong meeting with new details such as updated
+        scheduling, participants, or meeting configuration.
+      tags:
+        - Meetings
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeetingRequest'
+      responses:
+        '200':
+          description: Meeting successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Meeting not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteMeeting
+      summary: Delete a Gong meeting
+      description: >-
+        Removes a specific meeting from Gong using its unique meeting ID.
+        This operation is irreversible.
+      tags:
+        - Meetings
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Meeting successfully deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Meeting not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /meetings/integration-status:
+    post:
+      operationId: validateMeetingIntegrationStatus
+      summary: Gong Validate meeting integration status
+      description: >-
+        Validates the integration status for a meeting, checking whether the
+        meeting system integration is properly configured and operational.
+      tags:
+        - Meetings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingIntegrationStatusRequest'
+      responses:
+        '200':
+          description: >-
+            Successful response containing the meeting integration status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingIntegrationStatusResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    CreateMeetingRequest:
+      type: object
+      required:
+        - title
+        - scheduledStart
+        - scheduledEnd
+        - organizerEmail
+      properties:
+        title:
+          type: string
+          description: Title of the meeting.
+        scheduledStart:
+          type: string
+          format: date-time
+          description: Scheduled start time of the meeting in ISO-8601 format.
+        scheduledEnd:
+          type: string
+          format: date-time
+          description: Scheduled end time of the meeting in ISO-8601 format.
+        organizerEmail:
+          type: string
+          format: email
+          description: Email of the meeting organizer.
+        meetingUrl:
+          type: string
+          format: uri
+          description: URL of the meeting (conferencing link).
+        attendees:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeetingAttendee'
+          description: List of meeting attendees.
+        description:
+          type: string
+          description: Description or agenda for the meeting.
+        meetingProvider:
+          type: string
+          description: >-
+            The meeting provider (e.g., Zoom, Google Meet, Microsoft Teams).
+        externalMeetingId:
+          type: string
+          description: >-
+            External meeting ID from the conferencing system.
+    UpdateMeetingRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Updated title of the meeting.
+        scheduledStart:
+          type: string
+          format: date-time
+          description: Updated scheduled start time.
+        scheduledEnd:
+          type: string
+          format: date-time
+          description: Updated scheduled end time.
+        meetingUrl:
+          type: string
+          format: uri
+          description: Updated meeting URL.
+        attendees:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeetingAttendee'
+          description: Updated list of attendees.
+        description:
+          type: string
+          description: Updated meeting description.
+    MeetingAttendee:
+      type: object
+      properties:
+        emailAddress:
+          type: string
+          format: email
+          description: The attendee's email address.
+        name:
+          type: string
+          description: The attendee's display name.
+        responseStatus:
+          type: string
+          enum:
+            - Accepted
+            - Declined
+            - Tentative
+            - NeedsAction
+          description: The attendee's RSVP response status.
+    MeetingResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        meetingId:
+          type: string
+          description: The Gong-assigned meeting identifier.
+        meeting:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique meeting identifier.
+            title:
+              type: string
+              description: Title of the meeting.
+            scheduledStart:
+              type: string
+              format: date-time
+              description: Scheduled start time.
+            scheduledEnd:
+              type: string
+              format: date-time
+              description: Scheduled end time.
+            organizerEmail:
+              type: string
+              format: email
+              description: Email of the organizer.
+            meetingUrl:
+              type: string
+              format: uri
+              description: Meeting URL.
+            attendees:
+              type: array
+              items:
+                $ref: '#/components/schemas/MeetingAttendee'
+    MeetingIntegrationStatusRequest:
+      type: object
+      properties:
+        meetingProvider:
+          type: string
+          description: The meeting provider to check (e.g., Zoom, Google Meet).
+        userEmail:
+          type: string
+          format: email
+          description: Email of the user to check integration for.
+    MeetingIntegrationStatusResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        isIntegrated:
+          type: boolean
+          description: Whether the meeting integration is properly configured.
+        provider:
+          type: string
+          description: The meeting provider checked.
+        status:
+          type: string
+          enum:
+            - Active
+            - Inactive
+            - Error
+          description: Current status of the integration.
+        details:
+          type: string
+          description: Additional details about the integration status.
+    BaseResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

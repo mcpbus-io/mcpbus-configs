@@ -1,0 +1,282 @@
+openapi: 3.1.0
+info:
+  title: Gong Settings API
+  description: >-
+    The Gong Settings API provides endpoints to retrieve scorecard
+    configurations, tracker details, and list all company workspaces, enabling
+    programmatic access to organizational settings and evaluation frameworks.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Scorecards
+    description: Operations for retrieving scorecard configurations
+  - name: Trackers
+    description: Operations for retrieving tracker configurations
+  - name: Workspaces
+    description: Operations for managing workspaces
+paths:
+  /settings/scorecards:
+    get:
+      operationId: listScorecards
+      summary: Gong Retrieve scorecards
+      description: >-
+        Retrieves all scorecard configurations defined in the Gong account,
+        including their questions, scoring criteria, and associated metadata.
+      tags:
+        - Scorecards
+      responses:
+        '200':
+          description: Successful response containing scorecard configurations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScorecardsResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /settings/trackers:
+    get:
+      operationId: listTrackers
+      summary: Gong Retrieve trackers
+      description: >-
+        Retrieves all tracker configurations defined in the Gong account.
+        Trackers are keywords and phrases that Gong identifies during call
+        transcription and analysis.
+      tags:
+        - Trackers
+      parameters:
+        - name: workspaceId
+          in: query
+          required: false
+          description: Optional workspace ID to filter trackers by workspace.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing tracker configurations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackersResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /workspaces:
+    get:
+      operationId: listWorkspaces
+      summary: Gong List company workspaces
+      description: >-
+        Retrieves a list of all workspaces configured in the Gong account.
+        Workspaces are used to organize and segment data within the platform.
+      tags:
+        - Workspaces
+      responses:
+        '200':
+          description: Successful response containing a list of workspaces.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacesResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    ScorecardsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        scorecards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Scorecard'
+          description: List of scorecard configurations.
+    Scorecard:
+      type: object
+      properties:
+        scorecardId:
+          type: string
+          description: Unique identifier for the scorecard.
+        scorecardName:
+          type: string
+          description: Name of the scorecard.
+        enabled:
+          type: boolean
+          description: Whether the scorecard is currently enabled.
+        workspaceId:
+          type: string
+          description: The workspace the scorecard belongs to.
+        created:
+          type: string
+          format: date-time
+          description: When the scorecard was created.
+        updated:
+          type: string
+          format: date-time
+          description: When the scorecard was last updated.
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScorecardQuestion'
+          description: List of questions in the scorecard.
+    ScorecardQuestion:
+      type: object
+      properties:
+        questionId:
+          type: string
+          description: Unique identifier for the question.
+        questionText:
+          type: string
+          description: The question text.
+        questionType:
+          type: string
+          enum:
+            - YesNo
+            - Scale
+            - FreeText
+            - SingleChoice
+            - MultipleChoice
+          description: The type of question.
+        isRequired:
+          type: boolean
+          description: Whether the question requires an answer.
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              label:
+                type: string
+          description: Available answer options (for choice-type questions).
+    TrackersResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        trackers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tracker'
+          description: List of tracker configurations.
+    Tracker:
+      type: object
+      properties:
+        trackerId:
+          type: string
+          description: Unique identifier for the tracker.
+        trackerName:
+          type: string
+          description: Name of the tracker.
+        keywords:
+          type: array
+          items:
+            type: object
+            properties:
+              keyword:
+                type: string
+                description: The keyword or phrase to track.
+              tag:
+                type: string
+                description: Optional tag for the keyword.
+          description: Keywords and phrases being tracked.
+        workspaceId:
+          type: string
+          description: The workspace the tracker belongs to.
+        created:
+          type: string
+          format: date-time
+          description: When the tracker was created.
+        updated:
+          type: string
+          format: date-time
+          description: When the tracker was last updated.
+    WorkspacesResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        workspaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+          description: List of workspace objects.
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the workspace.
+        name:
+          type: string
+          description: Name of the workspace.
+        description:
+          type: string
+          description: Description of the workspace.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

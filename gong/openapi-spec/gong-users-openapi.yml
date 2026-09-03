@@ -1,0 +1,388 @@
+openapi: 3.1.0
+info:
+  title: Gong Users API
+  description: >-
+    The Gong Users API allows retrieval of user information, user histories, and
+    filtering of users by various criteria. It provides access to team member
+    profiles and licensing details within the Gong platform.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Users
+    description: Operations for managing and retrieving user data
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: Gong List all users
+      description: >-
+        Retrieves a list of all users in the Gong account. Results are paginated
+        and can optionally include user avatar images.
+      tags:
+        - Users
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          description: >-
+            A cursor for pagination. Pass the cursor from the previous response
+            to retrieve the next page of results.
+          schema:
+            type: string
+        - name: includeAvatars
+          in: query
+          required: false
+          description: >-
+            When set to true, the response includes user avatar image URLs.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response containing a list of users.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{id}:
+    get:
+      operationId: getUser
+      summary: Gong Retrieve a specific user
+      description: >-
+        Retrieves detailed information about a specific user identified by their
+        unique Gong user ID.
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique Gong user ID.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing the user details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{id}/settings-history:
+    get:
+      operationId: getUserSettingsHistory
+      summary: Gong Retrieve user settings history
+      description: >-
+        Retrieves the settings change history for a specific user, including
+        changes to their role, permissions, and other configuration settings over
+        time.
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique Gong user ID.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing the user settings history.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettingsHistoryResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/filter:
+    post:
+      operationId: listUsersByFilter
+      summary: Gong List users by filter
+      description: >-
+        Retrieves a filtered list of users based on specified criteria such as
+        creation date, user IDs, or other attributes.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersFilterRequest'
+      responses:
+        '200':
+          description: Successful response containing filtered users.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '400':
+          description: Bad request due to invalid filter parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    UsersResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        records:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+              description: Total number of user records.
+            currentPageSize:
+              type: integer
+              description: Number of records in the current page.
+            currentPageNumber:
+              type: integer
+              description: The current page number.
+            cursor:
+              type: string
+              description: Cursor value for retrieving the next page.
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          description: List of user objects.
+    UserResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Gong user identifier.
+        emailAddress:
+          type: string
+          format: email
+          description: The user's email address.
+        firstName:
+          type: string
+          description: The user's first name.
+        lastName:
+          type: string
+          description: The user's last name.
+        title:
+          type: string
+          description: The user's job title.
+        phoneNumber:
+          type: string
+          description: The user's phone number.
+        extension:
+          type: string
+          description: The user's phone extension.
+        personalMeetingUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: List of the user's personal meeting URLs.
+        settings:
+          type: object
+          properties:
+            webConferencesRecorded:
+              type: boolean
+              description: Whether web conferences are recorded.
+            preventWebConferenceRecording:
+              type: boolean
+              description: Whether web conference recording is prevented.
+            telephonyCallsImported:
+              type: boolean
+              description: Whether telephony calls are imported.
+            emailsImported:
+              type: boolean
+              description: Whether emails are imported.
+            preventEmailImport:
+              type: boolean
+              description: Whether email import is prevented.
+          description: User recording and import settings.
+        managerId:
+          type: string
+          description: The Gong user ID of this user's manager.
+        meetingConsentPageUrl:
+          type: string
+          format: uri
+          description: URL of the meeting consent page.
+        spokenLanguages:
+          type: array
+          items:
+            type: object
+            properties:
+              language:
+                type: string
+              primary:
+                type: boolean
+          description: Languages spoken by the user.
+        active:
+          type: boolean
+          description: Whether the user account is active.
+        created:
+          type: string
+          format: date-time
+          description: When the user account was created.
+        avatarUrl:
+          type: string
+          format: uri
+          description: URL of the user's avatar image.
+        trustedEmailAddress:
+          type: string
+          format: email
+          description: The user's trusted email address for SSO.
+    UsersFilterRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+          description: Cursor for pagination.
+        filter:
+          type: object
+          properties:
+            userIds:
+              type: array
+              items:
+                type: string
+              description: Filter by specific user IDs.
+            createdFromDateTime:
+              type: string
+              format: date-time
+              description: Filter users created after this date.
+            createdToDateTime:
+              type: string
+              format: date-time
+              description: Filter users created before this date.
+          description: Filter criteria for users.
+    UserSettingsHistoryResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        userSettingsHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: The user ID.
+              settingName:
+                type: string
+                description: Name of the setting that changed.
+              previousValue:
+                type: string
+                description: The previous value of the setting.
+              newValue:
+                type: string
+                description: The new value of the setting.
+              changedAt:
+                type: string
+                format: date-time
+                description: When the setting was changed.
+              changedBy:
+                type: string
+                description: Who made the change.
+          description: List of settings changes for the user.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

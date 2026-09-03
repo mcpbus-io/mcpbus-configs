@@ -1,0 +1,206 @@
+openapi: 3.1.0
+info:
+  title: Gong Library API
+  description: >-
+    The Gong Library API provides access to the library structure and calls
+    stored in specific folders, enabling programmatic browsing and retrieval of
+    curated call content.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Library
+    description: Operations for browsing and retrieving library content
+paths:
+  /library/folders:
+    get:
+      operationId: listLibraryFolders
+      summary: Gong Retrieve library folders
+      description: >-
+        Retrieves the library folder structure, listing all folders available in
+        the Gong library. Folders are used to organize curated call content for
+        training and review. Can be filtered by workspace.
+      tags:
+        - Library
+      parameters:
+        - name: workspaceId
+          in: query
+          required: false
+          description: Optional workspace ID to filter folders by workspace.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing library folders.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryFoldersResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /library/folders/{folderId}/calls:
+    get:
+      operationId: listCallsInFolder
+      summary: Gong List calls in a library folder
+      description: >-
+        Retrieves a list of calls stored in a specific library folder. Returns
+        call references that can be used to retrieve full call details via the
+        Calls API.
+      tags:
+        - Library
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          description: The unique identifier of the library folder.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing calls in the folder.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryFolderCallsResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Folder not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    LibraryFoldersResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/LibraryFolder'
+          description: List of library folders.
+    LibraryFolder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the library folder.
+        name:
+          type: string
+          description: Name of the library folder.
+        description:
+          type: string
+          description: Description of the library folder.
+        parentFolderId:
+          type: string
+          description: >-
+            ID of the parent folder. Null for top-level folders.
+        callCount:
+          type: integer
+          description: Number of calls stored in this folder.
+        createdBy:
+          type: string
+          description: User ID of the folder creator.
+        created:
+          type: string
+          format: date-time
+          description: When the folder was created.
+    LibraryFolderCallsResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/LibraryCall'
+          description: List of calls in the folder.
+    LibraryCall:
+      type: object
+      properties:
+        callId:
+          type: string
+          description: Unique identifier for the call.
+        title:
+          type: string
+          description: Title of the call.
+        url:
+          type: string
+          format: uri
+          description: URL to the call in the Gong web application.
+        started:
+          type: string
+          format: date-time
+          description: When the call started.
+        duration:
+          type: number
+          description: Duration of the call in seconds.
+        primaryUserId:
+          type: string
+          description: User ID of the primary user on the call.
+        addedToLibraryAt:
+          type: string
+          format: date-time
+          description: When the call was added to the library folder.
+        addedBy:
+          type: string
+          description: User ID of who added the call to the library.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

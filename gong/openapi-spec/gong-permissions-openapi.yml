@@ -1,0 +1,422 @@
+openapi: 3.1.0
+info:
+  title: Gong Permissions API
+  description: >-
+    The Gong Permissions API manages access controls through permission profiles
+    and user call access assignments, enabling programmatic configuration of who
+    can access specific calls and features.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Permission Profiles
+    description: Operations for managing permission profiles
+paths:
+  /workspaces/{workspaceId}/permission-profiles:
+    get:
+      operationId: listPermissionProfiles
+      summary: Gong List company permission profiles
+      description: >-
+        Retrieves all permission profiles defined for a specific workspace.
+        Permission profiles define sets of capabilities and access levels that
+        can be assigned to users.
+      tags:
+        - Permission Profiles
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: The unique identifier of the workspace.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing permission profiles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionProfilesResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workspace not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /permission-profiles:
+    post:
+      operationId: createPermissionProfile
+      summary: Gong Create permission profile
+      description: >-
+        Creates a new permission profile in the specified workspace with defined
+        capabilities and access levels.
+      tags:
+        - Permission Profiles
+      parameters:
+        - name: workspaceId
+          in: query
+          required: true
+          description: The workspace to create the permission profile in.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePermissionProfileRequest'
+      responses:
+        '201':
+          description: Permission profile successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionProfileResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /permission-profiles/{profileId}:
+    get:
+      operationId: getPermissionProfile
+      summary: Gong Get permission profile by ID
+      description: >-
+        Retrieves detailed information about a specific permission profile
+        identified by its unique ID.
+      tags:
+        - Permission Profiles
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          description: The unique identifier of the permission profile.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response containing the permission profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionProfileResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Permission profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: updatePermissionProfile
+      summary: Gong Update permission profile
+      description: >-
+        Updates an existing permission profile's capabilities and access levels.
+      tags:
+        - Permission Profiles
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          description: The unique identifier of the permission profile to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePermissionProfileRequest'
+      responses:
+        '200':
+          description: Permission profile successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionProfileResponse'
+        '400':
+          description: Bad request due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Permission profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /permission-profiles/{profileId}/users:
+    get:
+      operationId: listUsersByPermissionProfile
+      summary: Gong List users by permission profile
+      description: >-
+        Retrieves a list of users assigned to a specific permission profile.
+      tags:
+        - Permission Profiles
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          description: The unique identifier of the permission profile.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >-
+            Successful response containing users assigned to the profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionProfileUsersResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Permission profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    PermissionProfilesResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        permissionProfiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionProfile'
+          description: List of permission profiles.
+    PermissionProfileResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        permissionProfile:
+          $ref: '#/components/schemas/PermissionProfile'
+    PermissionProfile:
+      type: object
+      properties:
+        profileId:
+          type: string
+          description: Unique identifier for the permission profile.
+        name:
+          type: string
+          description: Name of the permission profile.
+        description:
+          type: string
+          description: Description of the permission profile.
+        workspaceId:
+          type: string
+          description: The workspace the profile belongs to.
+        permissions:
+          type: object
+          properties:
+            viewOwnCalls:
+              type: boolean
+              description: Can view their own calls.
+            viewTeamCalls:
+              type: boolean
+              description: Can view team members' calls.
+            viewAllCalls:
+              type: boolean
+              description: Can view all calls.
+            downloadRecordings:
+              type: boolean
+              description: Can download call recordings.
+            shareExternally:
+              type: boolean
+              description: Can share calls externally.
+            createScorecards:
+              type: boolean
+              description: Can create and fill scorecards.
+            manageUsers:
+              type: boolean
+              description: Can manage users.
+            manageSettings:
+              type: boolean
+              description: Can manage settings.
+          description: Permission flags for the profile.
+        userCount:
+          type: integer
+          description: Number of users assigned to this profile.
+    CreatePermissionProfileRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name for the new permission profile.
+        description:
+          type: string
+          description: Description of the permission profile.
+        permissions:
+          type: object
+          properties:
+            viewOwnCalls:
+              type: boolean
+            viewTeamCalls:
+              type: boolean
+            viewAllCalls:
+              type: boolean
+            downloadRecordings:
+              type: boolean
+            shareExternally:
+              type: boolean
+            createScorecards:
+              type: boolean
+            manageUsers:
+              type: boolean
+            manageSettings:
+              type: boolean
+          description: Permission flags to set.
+    UpdatePermissionProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated name for the permission profile.
+        description:
+          type: string
+          description: Updated description.
+        permissions:
+          type: object
+          properties:
+            viewOwnCalls:
+              type: boolean
+            viewTeamCalls:
+              type: boolean
+            viewAllCalls:
+              type: boolean
+            downloadRecordings:
+              type: boolean
+            shareExternally:
+              type: boolean
+            createScorecards:
+              type: boolean
+            manageUsers:
+              type: boolean
+            manageSettings:
+              type: boolean
+          description: Updated permission flags.
+    PermissionProfileUsersResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: The Gong user ID.
+              emailAddress:
+                type: string
+                format: email
+                description: The user's email address.
+              firstName:
+                type: string
+                description: The user's first name.
+              lastName:
+                type: string
+                description: The user's last name.
+          description: Users assigned to the permission profile.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.

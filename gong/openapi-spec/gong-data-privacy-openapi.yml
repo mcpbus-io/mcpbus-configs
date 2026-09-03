@@ -1,0 +1,305 @@
+openapi: 3.1.0
+info:
+  title: Gong Data Privacy API
+  description: >-
+    The Gong Data Privacy API provides data protection capabilities including
+    finding references to email addresses and phone numbers, and purging
+    associated data to support compliance with privacy regulations such as GDPR
+    and CCPA.
+  version: 2.0.0
+  contact:
+    name: Gong
+    url: https://www.gong.io
+    email: support@gong.io
+  license:
+    name: Proprietary
+    url: https://www.gong.io/terms-of-service/
+  termsOfService: https://www.gong.io/terms-of-service/
+servers:
+  - url: https://api.gong.io/v2
+    description: Gong API v2 Production Server
+security:
+  - basicAuth: []
+  - bearerAuth: []
+tags:
+  - name: Data Privacy
+    description: Operations for data privacy management and compliance
+paths:
+  /data-privacy/email-references:
+    get:
+      operationId: retrieveEmailReferences
+      summary: Gong Retrieve email address references
+      description: >-
+        Retrieves all references to a specified email address across the Gong
+        platform, including calls, meetings, and other records. Used to fulfill
+        data subject access requests under privacy regulations.
+      tags:
+        - Data Privacy
+      parameters:
+        - name: emailAddress
+          in: query
+          required: true
+          description: The email address to search for references.
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: >-
+            Successful response containing all references to the email address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailReferencesResponse'
+        '400':
+          description: Bad request due to invalid email address format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /data-privacy/phone-references:
+    get:
+      operationId: retrievePhoneReferences
+      summary: Gong Retrieve phone number references
+      description: >-
+        Retrieves all references to a specified phone number across the Gong
+        platform, including calls, meetings, and other records. Used to fulfill
+        data subject access requests under privacy regulations.
+      tags:
+        - Data Privacy
+      parameters:
+        - name: phoneNumber
+          in: query
+          required: true
+          description: The phone number to search for references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >-
+            Successful response containing all references to the phone number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneReferencesResponse'
+        '400':
+          description: Bad request due to invalid phone number format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /data-privacy/email-delete:
+    post:
+      operationId: deleteEmailAddressData
+      summary: Gong Delete email address and associated data
+      description: >-
+        Purges all data associated with the specified email address from the Gong
+        platform, including call records, transcripts, and user data. This
+        operation is irreversible and supports compliance with data erasure
+        requests under GDPR and similar regulations.
+      tags:
+        - Data Privacy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailDeleteRequest'
+      responses:
+        '200':
+          description: Data deletion request accepted and being processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataDeletionResponse'
+        '400':
+          description: Bad request due to invalid email address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /data-privacy/phone-delete:
+    post:
+      operationId: deletePhoneNumberData
+      summary: Gong Delete phone number and associated data
+      description: >-
+        Purges all data associated with the specified phone number from the Gong
+        platform, including call records and transcripts. This operation is
+        irreversible and supports compliance with data erasure requests under
+        GDPR and similar regulations.
+      tags:
+        - Data Privacy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneDeleteRequest'
+      responses:
+        '200':
+          description: Data deletion request accepted and being processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataDeletionResponse'
+        '400':
+          description: Bad request due to invalid phone number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >-
+        Basic authentication using your Gong API access key and secret. Format:
+        base64(access_key:access_secret).
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: OAuth 2.0 Bearer token authentication.
+  schemas:
+    EmailReferencesResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        emailAddress:
+          type: string
+          format: email
+          description: The email address that was searched.
+        references:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataReference'
+          description: List of references to the email address.
+    PhoneReferencesResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        phoneNumber:
+          type: string
+          description: The phone number that was searched.
+        references:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataReference'
+          description: List of references to the phone number.
+    DataReference:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Call
+            - Meeting
+            - Email
+            - EngageFlow
+            - User
+          description: The type of record containing the reference.
+        id:
+          type: string
+          description: The unique identifier of the record.
+        date:
+          type: string
+          format: date-time
+          description: Date associated with the reference.
+        details:
+          type: string
+          description: Additional details about the reference.
+    EmailDeleteRequest:
+      type: object
+      required:
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          format: email
+          description: >-
+            The email address whose associated data should be deleted.
+    PhoneDeleteRequest:
+      type: object
+      required:
+        - phoneNumber
+      properties:
+        phoneNumber:
+          type: string
+          description: >-
+            The phone number whose associated data should be deleted.
+    DataDeletionResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        status:
+          type: string
+          enum:
+            - Accepted
+            - Processing
+            - Complete
+          description: Status of the deletion request.
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: A unique identifier for the request.
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages.
